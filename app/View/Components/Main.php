@@ -21,6 +21,6 @@ class Main extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('views.layouts.main');
+        return view('layouts.main');
     }
 }

@@ -1,17 +1,44 @@
-<script src="{{ asset('assets/libs/jquery/jquery.min.js') }}"></script>
-<script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('assets/libs/metismenu/metisMenu.min.js') }}"></script>
-<script src="{{ asset('assets/libs/simplebar/simplebar.min.js')}}"></script>
-<script src="{{ asset('assets/libs/node-waves/waves.min.js')}}"></script>
+<!-- BEGIN: Vendor JS-->
+<script src="{{ asset('app-assets/vendors/js/vendors.min.js') }}"></script>
+<!-- BEGIN Vendor JS-->
 
-<!-- apexcharts -->
-<script src="{{ asset('assets/libs/apexcharts/apexcharts.min.js')}}"></script>
+<!-- BEGIN: Page Vendor JS-->
+<!-- END: Page Vendor JS-->
 
-<!-- Plugins js-->
-<script src="{{ asset('assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js')}}"></script>
-<script src="{{ asset('assets/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-world-mill-en.js')}}"></script>
+<script src="{{ asset('app-assets/vendors/js/editors/quill/katex.min.js') }}"></script>
+<script src="{{ asset('app-assets/vendors/js/editors/quill/highlight.min.js') }}"></script>
+<script src="{{ asset('app-assets/vendors/js/editors/quill/quill.min.js') }}"></script>
+<script src="{{ asset('app-assets/vendors/js/pickers/pickadate/picker.js') }}"></script>
+<script src="{{ asset('app-assets/vendors/js/pickers/pickadate/picker.date.js') }}"></script>
+<script src="{{ asset('app-assets/vendors/js/pickers/pickadate/picker.time.js') }}"></script>
+<script src="{{ asset('app-assets/vendors/js/pickers/pickadate/legacy.js') }}"></script>
+<script src=".{{ asset('app-assets/vendors/js/forms/repeater/jquery.repeater.min.js') }}"></script>
+<script src="{{ asset('app-assets/vendors/js/pickers/flatpickr/flatpickr.min.js') }}"></script>
+<script src="{{ asset('app-assets/vendors/js/forms/select/select2.full.min.js') }}"></script>
+<script src="{{ asset('app-assets/vendors/js/pickers/flatpickr/flatpickr.min.js') }}"></script>
+<script src="{{ asset('app-assets/vendors/js/extensions/dragula.min.js') }}"></script>
+<script src="{{ asset('app-assets/vendors/js/forms/validation/jquery.validate.min.js') }}"></script>
+<script src="{{ asset('app-assets/vendors/js/extensions/toastr.min.js') }}"></script>
+<!-- BEGIN: Theme JS-->
+<script src="{{ asset('app-assets/js/core/app-menu.js') }}"></script>
+<script src="{{ asset('app-assets/js/core/app.js') }}"></script>
 
-<script src="{{ asset('assets/js/pages/dashboard.init.js')}}"></script>
+<script src="{{ asset('app-assets/js/scripts/forms/form-number-input.js') }}"></script>
+<script src="{{ asset('app-assets/js/scripts/pages/app-invoice-list.js') }}"></script>
+<script src="{{ asset('app-assets/js/scripts/forms/pickers/form-pickers.js') }}"></script>
 
+<!-- <script src="{{ asset('app-assets/js/scripts/pages/app-todo.js') }}"></script> -->
+<!-- END: Theme JS-->
 
-<script src="{{ asset('assets/js/app.js')}}"></script>
+<!-- BEGIN: Page JS-->
+<!-- END: Page JS-->
+<script>
+    $(window).on('load', function() {
+        if (feather) {
+            feather.replace({
+                width: 14,
+                height: 14
+            });
+        }
+    })
+</script>
