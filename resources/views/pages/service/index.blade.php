@@ -164,7 +164,9 @@
                         location.reload();
                     }, 5000);
 
-                   
+                    document.getElementById('_service_name').value = "";
+                    document.getElementById('_description').value = "";
+                    document.getElementById('_unit_price').value = "";
                 },
                 error: function(error) {
                     console.error("Error occured : ", error);

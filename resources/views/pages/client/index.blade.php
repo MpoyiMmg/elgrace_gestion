@@ -31,10 +31,10 @@
                                 </td>
                                 <td>{{ $client->address }}</td>
                                 <td>
-                                    {{ $client->contact }} 
+                                    {{ $client->contact }}
                                 </td>
                                 <td>
-                                    {{ $client->phone }} 
+                                    {{ $client->phone }}
                                 </td>
                                 <td>
                                     <div class="dropdown">
@@ -183,7 +183,11 @@
                         location.reload();
                     }, 5000);
 
-                   
+                    document.getElementById('_client_name').value = "";
+                    document.getElementById('_address').value = "";
+                    document.getElementById('_contact').value = "";
+                    document.getElementById('_phone').value = "";
+                    document.getElementById('_email').value = "";
                 },
                 error: function(error) {
                     console.error("Error occured : ", error);

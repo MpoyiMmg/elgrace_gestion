@@ -180,7 +180,11 @@
                         location.reload();
                     }, 5000);
 
-                   
+                    document.getElementById('_article_name').value = "";
+                    document.getElementById('_description').value = "";
+                    document.getElementById('_price').value = "";
+                    document.getElementById('_quantity').value = "";
+                    
                 },
                 error: function(error) {
                     console.error("Error occured : ", error);
