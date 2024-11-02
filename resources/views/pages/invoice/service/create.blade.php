@@ -40,7 +40,7 @@
                                             </g>
                                         </g>
                                     </svg>
-                                    <h3 class="text-primary invoice-logo">Elgrace</h3>
+                                    <h3 class="text-primary invoice-logo">ELG<b class="text-dark">S</b></h3>
                                 </div>
                                 <!-- <p class="card-text mb-25">Office 149, 450 South Brand Brooklyn</p>
                                 <p class="card-text mb-25">San Diego County, CA 91905, USA</p>

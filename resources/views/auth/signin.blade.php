@@ -76,7 +76,7 @@
                                     </g>
                                 </g>
                             </svg>
-                            <h2 class="brand-text text-primary ml-1">Vuexy</h2>
+                            <h2 class="brand-text text-primary ml-1">ELG<b class="text-dark">S</b></h2>
                         </a>
                         <!-- /Brand logo-->
                         <!-- Left Text-->

@@ -38,7 +38,7 @@
                                 </g>
                             </g>
                         </svg></span>
-                    <h2 class="brand-text">Elgrace</h2>
+                        <h2 class="brand-text text-primary ml-1">ELG<b class="text-dark">S</b></h2>
                 </a></li>
             <li class="nav-item nav-toggle"><a class="nav-link modern-nav-toggle pr-0" data-toggle="collapse"><i
                         class="d-block d-xl-none text-primary toggle-icon font-medium-4" data-feather="x"></i><i
