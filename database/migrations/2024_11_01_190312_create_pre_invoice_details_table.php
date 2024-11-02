@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pre_invoices', function (Blueprint $table) {
+        Schema::create('pre_invoice_details', function (Blueprint $table) {
             $table->uuid('id')->unique()->primary();
-            $table->string('reference')->unique();
-            $table->foreignUuid('client_id')->constrained();
-            $table->date('issue_date');
-            $table->date('expiry_date')->nullable();
-            $table->enum('status', ['draft', 'sent', 'accepted', 'rejected', 'pending']);
+            $table->foreignUuid('pre_invoice_id')->constrained();
+            $table->foreignUuid('service_id')->constrained();
+            $table->integer('quantity');
             $table->double('total_amount');
             $table->timestamps();
         });
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pre_invoices');
+        Schema::dropIfExists('pre_invoice_details');
     }
 };

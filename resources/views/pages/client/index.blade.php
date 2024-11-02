@@ -67,7 +67,7 @@
     <div class="modal modal-slide-in sidebar-todo-modal fade" id="new-task-modal">
         <div class="modal-dialog sidebar-lg">
             <div class="modal-content p-0">
-                <form id="form-modal-todo" class="todo-modal needs-validation" method="POST" action="{{ route('services.store') }}">
+                <form id="form-modal-todo" class="todo-modal needs-validation">
                     <div class="modal-header align-items-center mb-1">
                         <h5 class="modal-title">Ajout d'un nouveau client</h5>
                         <div class="todo-item-action d-flex align-items-center justify-content-between ml-auto">
@@ -117,13 +117,19 @@
                                     <input type="number" id="_phone" class="form-control" name="phone" placeholder="Ex: 0999999999" />
                                 </div>
                             </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="_email">Adresse mail</label>
+                                    <input type="text" id="_email" class="form-control" name="email" placeholder="" />
+                                </div>
+                            </div>
                             <hr>
                             <div class="col-12 mt-2">
                                 <button class="btn btn-outline-primary" type="button" id="_loading_btn" disabled>
                                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                     <span class="sr-only">Loading...</span>
                                 </button>
-                                <button type="submit" onclick="onSubmit()" id="_saving_btn" class="btn btn-primary mr-1">Enregistrer</button>
+                                <button onclick="onSave()" id="_saving_btn" class="btn btn-primary mr-1">Enregistrer</button>
                                 <button type="reset" id="_reset_btn" class="btn btn-outline-secondary">Annuler</button>
                             </div>
                         </div>
@@ -144,7 +150,7 @@
             alertSuccess.style.display = 'none';
         }
 
-        function onSubmit() {
+        function onSave() {
             loadingBtn.style.display = 'block';
             savingBtn.style.display = 'none';
             resetBtn.style.display = 'none';
@@ -153,12 +159,14 @@
             const address = document.getElementById('_address').value;
             const contact = document.getElementById('_contact').value;
             const phone = document.getElementById('_phone').value;
+            const email = document.getElementById('_email').value;
 
             const data = {
                 name: clientName,
                 address: address,
                 contact: contact,
                 phone: phone,
+                email: email,
                 _token: "{{ csrf_token() }}"
             };
 

@@ -77,11 +77,11 @@ License: You must have a valid license purchased only from themeforest(the above
         <div class="content-overlay"></div>
         <div class="header-navbar-shadow"></div>
         <div class="content-wrapper">
-            <!-- <div class="content-header row">
+            <div class="content-header row">
                 <div class="content-header-left col-md-9 col-12 mb-2">
                     <div class="row breadcrumbs-top">
                         <div class="col-12">
-                            <h2 class="content-header-title float-left mb-0">Home</h2>
+                            <!-- <h2 class="content-header-title float-left mb-0">Home</h2>
                             <div class="breadcrumb-wrapper">
                                 <ol class="breadcrumb">
                                     <li class="breadcrumb-item"><a href="index.html">Home</a>
@@ -89,7 +89,7 @@ License: You must have a valid license purchased only from themeforest(the above
                                     <li class="breadcrumb-item active">Index
                                     </li>
                                 </ol>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -97,11 +97,15 @@ License: You must have a valid license purchased only from themeforest(the above
                     <div class="form-group breadcrumb-right">
                         <div class="dropdown">
                             <button class="btn-icon btn btn-primary btn-round btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="grid"></i></button>
-                            <div class="dropdown-menu dropdown-menu-right"><a class="dropdown-item" href="javascript:void(0);"><i class="mr-1" data-feather="check-square"></i><span class="align-middle">Todo</span></a><a class="dropdown-item" href="javascript:void(0);"><i class="mr-1" data-feather="message-square"></i><span class="align-middle">Chat</span></a><a class="dropdown-item" href="javascript:void(0);"><i class="mr-1" data-feather="mail"></i><span class="align-middle">Email</span></a><a class="dropdown-item" href="javascript:void(0);"><i class="mr-1" data-feather="calendar"></i><span class="align-middle">Calendar</span></a></div>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="{{ route('dashboard') }}"><i class="mr-1" data-feather="file-text"></i><span class="align-middle">Facturation</span></a>
+                                <a class="dropdown-item" href="javascript:void(0);"><i class="mr-1" data-feather="file"></i><span class="align-middle">Licences</span></a>
+                                <a class="dropdown-item" href="javascript:void(0);"><i class="mr-1" data-feather="refresh-cw"></i><span class="align-middle">Cleaning</span></a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div> -->
+            </div>
             <div class="content-body">
                {{ $slot }}
             </div>

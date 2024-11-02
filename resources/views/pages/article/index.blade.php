@@ -67,7 +67,7 @@
     <div class="modal modal-slide-in sidebar-todo-modal fade" id="new-task-modal">
         <div class="modal-dialog sidebar-lg">
             <div class="modal-content p-0">
-                <form id="form-modal-todo" class="todo-modal" method="POST" action="{{ route('articles.store') }}">
+                <form id="form-modal-todo" class="todo-modal needs-validation">
                     <div class="modal-header align-items-center mb-1">
                         <h5 class="modal-title">Ajout d'un article</h5>
                         <div class="todo-item-action d-flex align-items-center justify-content-between ml-auto">

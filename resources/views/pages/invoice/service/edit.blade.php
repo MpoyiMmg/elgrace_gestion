@@ -55,16 +55,17 @@
                                                 <i data-feather="hash"></i>
                                             </div>
                                         </div>
-                                        <input type="text" class="form-control invoice-edit-input" id="_reference" placeholder="53634" />
+                                        <input type="text" class="form-control invoice-edit-input" placeholder="53634" value="{{ $preInvoice->reference }}" disabled />
+                                        <input type="hidden" id="_reference"  value="{{ $preInvoice->reference }}" />
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center mb-1">
                                     <span class="title">Date:</span>
-                                    <input type="text" id="_creation_date" class="form-control invoice-edit-input flatpickr-basic" placeholder="YYYY-MM-DD" />
+                                    <input type="text" id="_creation_date" class="form-control invoice-edit-input flatpickr-basic" placeholder="YYYY-MM-DD" value=" {{ $preInvoice->issue_date }}" />
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <span class="title">Date d'échéance:</span>
-                                    <input type="text" id="_due_date" class="form-control invoice-edit-input flatpickr-basic" placeholder="YYYY-MM-DD" />
+                                    <input type="text" id="_due_date" class="form-control invoice-edit-input flatpickr-basic" placeholder="YYYY-MM-DD" value=" {{ $preInvoice->expiry_date }}"/>
                                 </div>
                             </div>
                         </div>
@@ -82,7 +83,11 @@
                                     <select class="invoiceto form-control" id="_selected_client" onchange="activeSaveBtn()">
                                         <option value="" disabled selected> Veuillez séléctionner un client</option>
                                         @foreach($clients as $client)
+                                        @if($client->id === $preInvoice->client['id'])
+                                        <option value="{{ $client->id }}" selected>{{ $client->name }}</option>
+                                        @else
                                         <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                        @endif
                                         @endforeach
                                     </select>
                                 </div>
@@ -253,7 +258,7 @@
                     <div class="card-body">
                         <!-- <button class="btn btn-primary btn-block mb-75" disabled>Send Invoice</button> -->
                         <!-- <a href="./app-invoice-preview.html" class="btn btn-outline-primary btn-block mb-75">Preview</a> -->
-                        <button type="button" class="btn btn-primary btn-block" id="_save_btn" onclick="saveInvoice()">Enregistrer</button>
+                        <button type="button" class="btn btn-primary btn-block" id="_save_btn" onclick="UpdateInvoice()">Modifier</button>
                     </div>
                 </div>
             </div>
@@ -274,7 +279,8 @@
                 addItemBtn.disabled = true;
             }
             saveBtn.disabled = true;
-            resetItemsFromStorage();
+            // resetItemsFromStorage();
+            showItems();
         }
 
         function selectService() {
@@ -289,7 +295,7 @@
 
             unitPrice = service.price;
             quantity.value = 0;
-            priceText.innerHTML = "$" + parseInt(0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            priceText.innerHTML = "$" + parseInt(0).toFixed(2);
         }
 
         function calculOfPrice() {
@@ -368,9 +374,9 @@
                     items.forEach((item, index) => {
                         tr += `<tr>`;
                         tr += `<td>${item.service.name}</td>`;
-                        tr += `<td>${item.service.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                        tr += `<td>${"$" + item.service.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                         tr += `<td>${item.quantity}</td>`;
-                        tr += `<td>${(parseInt(item.quantity) * parseInt(item.service.price)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                        tr += `<td>${"$" + (parseInt(item.quantity) * parseInt(item.service.price)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                         tr += `<td>
                                     <button type="button" class="btn btn-light mt-1 remove-wishlist waves-effect waves-float waves-light">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x align-middle mr-25"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -380,12 +386,12 @@
                     });
 
                     tableBody.innerHTML = tr;
-                    // invoicePriceText.innerHTML = "$" + invoicePrice.toFixed(2);
+                    invoicePriceText.innerHTML = "$" + invoicePrice.toFixed(2);
                     service.value = "";
                     price.value = "";
                     quantity.value = 0;
-                    priceText.innerHTML = "$" + parseInt(0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    invoicePriceText.innerHTML = "$" + invoicePrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    priceText.innerHTML = "$" + parseInt(0).toFixed(2);
+                    invoicePriceText.innerHTML = "$" + (invoicePrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                     addItemToStorage(items);
                     activeSaveBtn();
                 }
@@ -394,7 +400,7 @@
 
         function removeItem(index) {}
 
-        function saveInvoice() {
+        function UpdateInvoice() {
             var selectedClient = document.querySelector('#_selected_client').value;
             var creationDate = document.querySelector('#_creation_date').value;
             var dueDate = document.querySelector('#_due_date').value;
@@ -414,13 +420,13 @@
             }
 
             $.ajax({
-                url: "{{ route('services.invoices.store') }}",
+                url: "{{ route('services.invoices.update', $preInvoice->id) }}",
                 method: 'POST',
                 data: data,
                 success: function(response) {
                     console.log("Invoice saved successfully : ", response);
                     alert.style.display = 'block';
-                    alertMsg.innerHTML = "Facture enregistrée avec succès!";
+                    alertMsg.innerHTML = "Facture modifiée avec succès!";
                     setInterval(function() {
                         alert.style.display = 'none';
                     }, 5000);
@@ -428,8 +434,6 @@
                     showItems();
                 }
             })
-            console.log("data : ", data);
-
         }
 
         function activeSaveBtn() {

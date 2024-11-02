@@ -12,9 +12,6 @@ Route::get('/', function () {
     return to_route('login');
 });
 
-// Route::get('/dashboard', function () {
-//     return view('pages.dashboard.index');
-// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -57,6 +54,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/services-invoices/add-item', 'addItem')->name('services.invoices.add.item');
         Route::post('/services-invoices/remove-item', 'removeItem')->name('services.invoices.remove.item');
         Route::get('/services-invoices/get-items', 'getItems')->name('services.invoices.get.items');
+        Route::post('/services-invoices/store', 'store')->name('services.invoices.store');
+        Route::get('/services-invoices/{invoice}', 'show')->name('services.invoices.show');
+        Route::get('/services-invoices/{invoice}/edit', 'edit')->name('services.invoices.edit');
+        Route::post('services-invoices/{invoice}/update', 'update')->name('services.invoices.update');
     });
 });
 

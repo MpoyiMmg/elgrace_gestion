@@ -10,6 +10,6 @@ class Client extends Model
     use HasUuids;
 
     protected $fillable = [
-        'name', 'address', 'contact', 'phone'
+        'name', 'address', 'contact', 'phone', 'email'
     ];
 }

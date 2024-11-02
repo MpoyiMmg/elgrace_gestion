@@ -18,6 +18,7 @@ class CreateClientAction
             'address' => 'required|string',
             'contact' => 'required|string',
             'phone' => 'required|numeric',
+            'email' => 'required|string|unique:clients',
         ]);
 
         if ($validator->fails()) {

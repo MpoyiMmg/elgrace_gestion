@@ -27,7 +27,7 @@
 <script src="{{ asset('app-assets/js/scripts/pages/app-invoice-list.js') }}"></script>
 <script src="{{ asset('app-assets/js/scripts/forms/pickers/form-pickers.js') }}"></script>
 
-<!-- <script src="{{ asset('app-assets/js/scripts/pages/app-todo.js') }}"></script> -->
+<script src="{{ asset('app-assets/js/scripts/pages/app-todo.js') }}"></script>
 <!-- END: Theme JS-->
 
 <!-- BEGIN: Page JS-->
