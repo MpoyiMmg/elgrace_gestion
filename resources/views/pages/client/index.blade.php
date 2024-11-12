@@ -11,12 +11,14 @@
                     </button>
                 </div>
                 <div class="table-responsive">
+                    @if (count($clients))
                     <table class="table">
                         <thead>
                             <tr>
                                 <th>Nom</th>
                                 <th>Adresse</th>
                                 <th>Personne à contacter</th>
+                                <th>Adresse mail</th>
                                 <th>Téléphone</th>
                                 <th>Actions</th>
                             </tr>
@@ -32,6 +34,9 @@
                                 <td>{{ $client->address }}</td>
                                 <td>
                                     {{ $client->contact }}
+                                </td>
+                                <td>
+                                    {{ $client->email }}
                                 </td>
                                 <td>
                                     {{ $client->phone }}
@@ -58,6 +63,16 @@
                             @endif
                         </tbody>
                     </table>
+                    @else
+                    <tr>
+                        <div class="w-100 d-lg-flex align-items-center justify-content-center px-5 mb-4">
+                            <img class="img-fluid" src="{{ asset('app-assets/images/pages/error.svg') }}" alt="Empty data" />
+                        </div>
+                        <div class="d-lg-flex align-items-center justify-content-center mb-4">
+                            <h3>Aucun client n'a été trouvé, veuillez en ajouter!</h3>
+                        </div>
+                    </tr>
+                    @endif
                 </div>
             </div>
         </div>

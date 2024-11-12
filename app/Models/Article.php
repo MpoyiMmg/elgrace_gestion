@@ -12,4 +12,8 @@ class Article extends Model
     protected $fillable = [
         'name', 'description', 'unit_price', 'quantity'
     ];
+
+    public function service() {
+        return $this->belongsTo(Service::class);
+    }
 }

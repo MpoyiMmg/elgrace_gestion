@@ -51,13 +51,24 @@ Route::middleware('auth')->group(function () {
     Route::controller(PreInvoiceController::class)->group(function() {
         Route::get('/services-invoices', 'index')->name('services.invoices.index');
         Route::get('/services-invoices/create', 'create')->name('services.invoices.create');
-        Route::post('/services-invoices/add-item', 'addItem')->name('services.invoices.add.item');
+        Route::post('/services-invoices/add-item', 'addServiceItem')->name('services.invoices.add.item');
         Route::post('/services-invoices/remove-item', 'removeItem')->name('services.invoices.remove.item');
         Route::get('/services-invoices/get-items', 'getItems')->name('services.invoices.get.items');
         Route::post('/services-invoices/store', 'store')->name('services.invoices.store');
         Route::get('/services-invoices/{invoice}', 'show')->name('services.invoices.show');
         Route::get('/services-invoices/{invoice}/edit', 'edit')->name('services.invoices.edit');
         Route::post('services-invoices/{invoice}/update', 'update')->name('services.invoices.update');
+
+        Route::get('/articles-invoices', 'listArticleInvoices')->name('articles.invoices.index');
+        Route::get('/articles-invoices/create', 'createArticleInvoice')->name('articles.invoices.create');
+        Route::post('/articles-invoices/add-item', 'addArticleItem')->name('articles.invoices.add.item');
+        Route::post('/articles-invoices/remove-item', 'removeArticleItem')->name('articles.invoices.remove.item');
+        Route::get('/articles-invoices/get-items', 'getArticleItems')->name('articles.invoices.get.items');
+        Route::post('/articles-invoices/store', 'storeArticleInvoice')->name('articles.invoices.store');
+        Route::get('/articles-invoices/{invoice}', 'showArticleInvoice')->name('articles.invoices.show');
+        Route::get('/articles-invoices/{invoice}/print', 'printArticleInvoice')->name('articles.invoices.print');
+        Route::get('/articles-invoices/{invoice}/edit', 'editArticleInvoice')->name('articles.invoices.edit');
+        Route::post('articles-invoices/{invoice}/update', 'updateArticleInvoice')->name('articles.invoices.update');
     });
 });
 

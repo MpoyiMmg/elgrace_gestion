@@ -1,3 +1,6 @@
+@php 
+    $route = request()->route()->getName();
+@endphp
 <!DOCTYPE html>
 <!--
 Template Name: Vuexy - Vuejs, HTML & Laravel Admin Dashboard Template
@@ -47,8 +50,26 @@ License: You must have a valid license purchased only from themeforest(the above
     <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/plugins/extensions/ext-component-toastr.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/plugins/forms/form-validation.css') }}">
     <!-- <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/pages/app-todo.css') }}"> -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/pages/app-invoice-list.css') }}">
+    @if ($route === 'articles.invoices.create' || 
+        $route === 'articles.invoices.edit' || 
+        $route === 'articles.invoices.show' ||
+        $route === 'services.invoices.create' || 
+        $route === 'services.invoices.edit' || 
+        $route === 'services.invoices.show'
+        )
     <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/pages/app-invoice.css') }}">
+    @endif
+
+    @if (
+        $route === 'services.invoices.index' || 
+        $route === 'articles.invoices.index'
+        )
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/pages/app-invoice-list.css') }}">
+    @endif
+
+    @if ($route === 'articles.invoices.print')
+    <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/pages/app-invoice-print.css') }}">
+    @endif
 
     <!-- END: Page CSS-->
 
@@ -61,15 +82,16 @@ License: You must have a valid license purchased only from themeforest(the above
 
 <!-- BEGIN: Body-->
 
-<body class="vertical-layout vertical-menu-modern  navbar-floating footer-static  " data-open="click" data-menu="vertical-menu-modern" data-col="">
+<body class="vertical-layout vertical-menu-modern {{$route === 'articles.invoices.print' ? 'blank-page' : '' }}  navbar-floating footer-static  " data-open="click" data-menu="vertical-menu-modern" data-col="{{$route === 'articles.invoices.print' ? 'blank-page' : '' }}">
 
     <!-- BEGIN: Header-->
+    @if ($route !== 'articles.invoices.print')
     <x-app.nav></x-app.nav>
     <!-- END: Header-->
-
-
     <!-- BEGIN: Main Menu-->
+    
     @include('parts.sideBar')
+    @endif
     <!-- END: Main Menu-->
 
     <!-- BEGIN: Content-->
@@ -78,6 +100,7 @@ License: You must have a valid license purchased only from themeforest(the above
         <div class="header-navbar-shadow"></div>
         <div class="content-wrapper">
             <div class="content-header row">
+            @if ($route !== 'articles.invoices.print')
                 <div class="content-header-left col-md-9 col-12 mb-2">
                     <div class="row breadcrumbs-top">
                         <div class="col-12">
@@ -105,6 +128,7 @@ License: You must have a valid license purchased only from themeforest(the above
                         </div>
                     </div>
                 </div>
+            @endif
             </div>
             <div class="content-body">
                {{ $slot }}
@@ -115,10 +139,12 @@ License: You must have a valid license purchased only from themeforest(the above
 
     <div class="sidenav-overlay"></div>
     <div class="drag-target"></div>
-
-    <!-- BEGIN: Footer-->
-    @include('parts.footer')
-    <!-- END: Footer-->
+    
+    @if ($route !== 'articles.invoices.print')
+        <!-- BEGIN: Footer-->
+        @include('parts.footer')
+        <!-- END: Footer-->
+    @endif
 
     <!-- scripts -->
     @include('parts.scripts')

@@ -10,6 +10,6 @@ class Service extends Model
     use HasUuids;
 
     protected $fillable = [
-        'name', 'description', 'price'
+        'name', 'description'
     ];
 }

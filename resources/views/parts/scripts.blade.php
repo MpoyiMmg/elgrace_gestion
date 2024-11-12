@@ -1,3 +1,6 @@
+@php 
+    $route = request()->route()->getName();
+@endphp
 <!-- BEGIN: Vendor JS-->
 <script src="{{ asset('app-assets/vendors/js/vendors.min.js') }}"></script>
 <!-- BEGIN Vendor JS-->
@@ -26,6 +29,10 @@
 <script src="{{ asset('app-assets/js/scripts/forms/form-number-input.js') }}"></script>
 <script src="{{ asset('app-assets/js/scripts/pages/app-invoice-list.js') }}"></script>
 <script src="{{ asset('app-assets/js/scripts/forms/pickers/form-pickers.js') }}"></script>
+
+@if ($route === 'articles.invoices.print')
+<script src="{{ asset('app-assets/js/scripts/pages/app-invoice-print.js') }}"></script>
+@endif
 
 <script src="{{ asset('app-assets/js/scripts/pages/app-todo.js') }}"></script>
 <!-- END: Theme JS-->

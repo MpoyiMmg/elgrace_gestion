@@ -5,7 +5,7 @@
             <div class="col-xl-9 col-md-8 col-12">
                 <div class="alert alert-success alert-dismissible fade show" id="_alert_el" role="alert">
                     <div class="alert-body" id="_alert_msg">
-                        
+
                     </div>
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">×</span>
@@ -48,23 +48,24 @@
                             </div>
                             <div class="invoice-number-date mt-md-0 mt-2">
                                 <div class="d-flex align-items-center justify-content-md-end mb-1">
-                                    <h4 class="invoice-title">Réf.</h4>
+                                    <h4 class="invoice-title">Facture:</h4>
                                     <div class="input-group input-group-merge invoice-edit-input-group">
                                         <div class="input-group-prepend">
                                             <div class="input-group-text">
                                                 <i data-feather="hash"></i>
                                             </div>
                                         </div>
-                                        <input type="text" class="form-control invoice-edit-input" id="_reference" placeholder="53634" />
+                                        <input type="text" class="form-control invoice-edit-input" placeholder="53634" value="{{ $preInvoice->reference }}" disabled />
+                                        <input type="hidden" id="_reference" value="{{ $preInvoice->reference }}" />
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center mb-1">
                                     <span class="title">Date:</span>
-                                    <input type="text" id="_creation_date" class="form-control invoice-edit-input flatpickr-basic" placeholder="YYYY-MM-DD" />
+                                    <input type="text" id="_creation_date" class="form-control invoice-edit-input flatpickr-basic" placeholder="YYYY-MM-DD" value=" {{ $preInvoice->issue_date }}" />
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <span class="title">Date d'échéance:</span>
-                                    <input type="text" id="_due_date" class="form-control invoice-edit-input flatpickr-basic" placeholder="YYYY-MM-DD" />
+                                    <input type="text" id="_due_date" class="form-control invoice-edit-input flatpickr-basic" placeholder="YYYY-MM-DD" value=" {{ $preInvoice->expiry_date }}" />
                                 </div>
                             </div>
                         </div>
@@ -82,7 +83,11 @@
                                     <select class="invoiceto form-control" id="_selected_client" onchange="activeSaveBtn()">
                                         <option value="" disabled selected> Veuillez séléctionner un client</option>
                                         @foreach($clients as $client)
+                                        @if($client->id === $preInvoice->client['id'])
+                                        <option value="{{ $client->id }}" selected>{{ $client->name }}</option>
+                                        @else
                                         <option value="{{ $client->id }}">{{ $client->name }}</option>
+                                        @endif
                                         @endforeach
                                     </select>
                                 </div>
@@ -130,40 +135,46 @@
                         <form class="source-item">
                             <div data-repeater-list="group-a">
                                 <div class="repeater-wrapper" data-repeater-item>
-                                    <div class="row">
-                                        <div class="col-12 d-flex product-details-border position-relative pr-0">
-                                            <div class="row w-100 pr-lg-0 pr-1 py-2">
-                                                <div class="col-lg-5 col-12 mb-lg-0 mb-2 mt-lg-0 mt-2">
-                                                    <p class="card-text col-title mb-md-50 mb-0">Service</p>
-                                                    <select class="form-control item-details" id="_service" onchange="selectService()">
-                                                        <option value="" selected disabled>Selectionner un service</option>
-                                                        @foreach($services as $service)
-                                                        <option value="{{ $service }}">{{ $service->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                    <!-- <textarea class="form-control mt-2" rows="1">Customization & Bug Fixes</textarea> -->
-                                                </div>
-                                                <div class="col-lg-3 col-12 my-lg-0 my-2">
-                                                    <p class="card-text col-title mb-md-2 mb-0">Prix</p>
-                                                    <input type="text" class="form-control" value="0" id="_price" placeholder="0" />
-                                                    <!-- <div class="mt-2">
+                                    <div class="row w-100 pr-lg-0 pr-1 py-2">
+                                        <div class="col-lg-3 col-12 mb-lg-0 mb-2 mt-lg-0 mt-2">
+                                            <p class="card-text col-title mb-md-50 mb-0">Article</p>
+                                            <select class="form-control item-details" id="_article" onchange="selectArticle()">
+                                                <option value="" selected disabled>Selectionner un article</option>
+                                                @foreach($articles as $article)
+                                                <option value="{{ $article }}">{{ $article->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <!-- <textarea class="form-control mt-2" rows="1">Customization & Bug Fixes</textarea> -->
+                                        </div>
+                                        <div class="col-lg-3 col-12 mb-lg-0 mb-2 mt-lg-0 mt-2">
+                                            <p class="card-text col-title mb-md-50 mb-0">Service</p>
+                                            <select class="form-control item-details" id="_service">
+                                                <option value="" selected disabled>Selectionner un service</option>
+                                                @foreach($services as $service)
+                                                <option value="{{ $service->id }}">{{ $service->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <!-- <textarea class="form-control mt-2" rows="1">Customization & Bug Fixes</textarea> -->
+                                        </div>
+                                        <div class="col-lg-2 col-12 my-lg-0 my-2">
+                                            <p class="card-text col-title mb-md-2 mb-0">Prix unitaire</p>
+                                            <input type="text" class="form-control" value="0" id="_price" placeholder="0" />
+                                            <!-- <div class="mt-2">
                                                         <span>Discount:</span>
                                                         <span class="discount">0%</span>
                                                         <span class="tax-1 ml-50" data-toggle="tooltip" data-placement="top" title="Tax 1">0%</span>
                                                         <span class="tax-2 ml-50" data-toggle="tooltip" data-placement="top" title="Tax 2">0%</span>
                                                     </div> -->
-                                                </div>
-                                                <!-- <div class="col-lg-2 col-12 my-lg-0 my-2">
-                                                    <p class="card-text col-title mb-md-2 mb-0">Quantité</p>
-                                                    <div class="input-group input-group-lg">
-                                                        <input type="number" class="touchspin" value="0" name="stock" id="_quantity" onchange="calculOfPrice()" />
-                                                    </div>
-                                                </div> -->
-                                                <!-- <div class="col-lg-2 col-12 mt-lg-0 mt-2">
-                                                    <p class="card-text col-title mb-md-50 mb-0">Prix total</p>
-                                                    <p class="card-text mb-0 mt-0" id="_price_text">$0.0</p>
-                                                </div> -->
+                                        </div>
+                                        <div class="col-lg-2 col-12 my-lg-0 my-2">
+                                            <p class="card-text col-title mb-md-2 mb-0">Quantité</p>
+                                            <div class="input-group input-group-lg">
+                                                <input type="number" class="touchspin" value="0" name="stock" id="_quantity" onchange="calculOfPrice()" />
                                             </div>
+                                        </div>
+                                        <div class="col-lg-2 col-12 mt-lg-0 mt-2">
+                                            <p class="card-text col-title mb-md-50 mb-0">Prix total</p>
+                                            <p class="card-text mb-0 mt-0" id="_price_text">$0.0</p>
                                         </div>
                                     </div>
                                 </div>
@@ -193,7 +204,9 @@
                                         <thead>
                                             <tr>
                                                 <th class="py-1">Service</th>
-                                                <th class="py-1">Prix</th>
+                                                <th class="py-1">Prix unitaire</th>
+                                                <th class="py-1">Quantité</th>
+                                                <th class="py-1">Total</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -251,7 +264,7 @@
                     <div class="card-body">
                         <!-- <button class="btn btn-primary btn-block mb-75" disabled>Send Invoice</button> -->
                         <!-- <a href="./app-invoice-preview.html" class="btn btn-outline-primary btn-block mb-75">Preview</a> -->
-                        <button type="button" class="btn btn-primary btn-block" id="_save_btn" onclick="saveInvoice()">Enregistrer</button>
+                        <button type="button" class="btn btn-primary btn-block" id="_save_btn" onclick="UpdateInvoice()">Modifier</button>
                     </div>
                 </div>
             </div>
@@ -272,23 +285,26 @@
                 addItemBtn.disabled = true;
             }
             saveBtn.disabled = true;
-            resetItemsFromStorage();
+            // resetItemsFromStorage();
+            showItems();
         }
 
-        function selectService() {
-            var service = document.querySelector("#_service").value;
+        function selectArticle() {
+            var article = document.querySelector("#_article").value;
             var price = document.querySelector("#_price");
             var quantity = document.querySelector("#_quantity");
             var priceText = document.querySelector('#_price_text');
 
 
-            service = JSON.parse(service);
-            price.value = service.price;
+            article = JSON.parse(article);
+            price.value = article.unit_price;
 
-            unitPrice = service.price;
+            unitPrice = article.unit_price;
             quantity.value = 0;
-            priceText.innerHTML = "$" + parseInt(0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            addItemBtn.disabled = false;
+            priceText.innerHTML = "$" + parseInt(0).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
         }
 
         function calculOfPrice() {
@@ -302,20 +318,25 @@
             }
             let total = unitPrice * quantity;
 
-            priceText.innerHTML = "$" + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            priceText.innerHTML = "$" + total.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
         }
 
         function addItem() {
+            var article = document.querySelector('#_article').value;
             var service = document.querySelector('#_service').value;
             var quantity = document.querySelector("#_quantity").value;
             var data = {
-                service: JSON.parse(service),
+                article: JSON.parse(article),
+                service: service,
                 quantity: quantity,
                 _token: "{{ csrf_token() }}"
             }
 
             $.ajax({
-                url: "{{ route('services.invoices.add.item') }}",
+                url: "{{ route('articles.invoices.add.item') }}",
                 method: 'POST',
                 data: data,
                 success: function(response) {
@@ -349,11 +370,11 @@
         function showItems() {
             var invoicePriceText = document.querySelector('#_total_invoice_price_text')
             $.ajax({
-                url: "{{ route('services.invoices.get.items') }}",
+                url: "{{ route('articles.invoices.get.items') }}",
                 method: 'GET',
                 success: function(response) {
-                    console.log("Items fetched successfully : ", response);
-                    var items = response.items;
+                    console.log("Items fetched successfully : ", response.articles);
+                    var items = response.articles;
                     document.querySelector("#items-table tbody").innerHTML = "";
 
                     var service = document.querySelector("#_service");
@@ -366,34 +387,52 @@
                     var tr = "";
                     items.forEach((item, index) => {
                         tr += `<tr>`;
-                        tr += `<td>${item.service.name}</td>`;
-                        tr += `<td>${item.service.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                        tr += `<td>${item.article.name}</td>`;
+                        tr += `<td>${"$" + item.article.unit_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                         tr += `<td>${item.quantity}</td>`;
-                        tr += `<td>${(parseInt(item.quantity) * parseInt(item.service.price)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                        tr += `<td>${"$" + (parseInt(item.quantity) * parseInt(item.article.unit_price)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
                         tr += `<td>
-                                    <button type="button" class="btn btn-light mt-1 remove-wishlist waves-effect waves-float waves-light">
+                                    <button type="button" class="btn btn-light mt-1 remove-wishlist waves-effect waves-float waves-light" onclick="removeItem(${index})">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x align-middle mr-25"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                                     </button>
                                 </td>`;
-                        invoicePrice += parseInt(item.quantity) * parseInt(item.service.price);
+                        invoicePrice += parseInt(item.quantity) * parseInt(item.article.unit_price);
                     });
 
                     tableBody.innerHTML = tr;
-                    // invoicePriceText.innerHTML = "$" + invoicePrice.toFixed(2);
+                    invoicePriceText.innerHTML = "$" + invoicePrice.toFixed(2);
                     service.value = "";
                     price.value = "";
                     quantity.value = 0;
-                    priceText.innerHTML = "$" + parseInt(0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    invoicePriceText.innerHTML = "$" + invoicePrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    priceText.innerHTML = "$" + parseInt(0).toFixed(2);
+                    invoicePriceText.innerHTML = "$" + (invoicePrice).toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
                     addItemToStorage(items);
                     activeSaveBtn();
                 }
             });
         }
 
-        function removeItem(index) {}
+        function removeItem(index) {
+            console.log("index : ", index);
+            
+            $.ajax({
+                url: "{{ route('articles.invoices.remove.item') }}",
+                method: 'POST',
+                data: {
+                    index: index,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    console.log("Item removed successfully");
+                    showItems();
+                }
+            })
+        }
 
-        function saveInvoice() {
+        function UpdateInvoice() {
             var selectedClient = document.querySelector('#_selected_client').value;
             var creationDate = document.querySelector('#_creation_date').value;
             var dueDate = document.querySelector('#_due_date').value;
@@ -413,13 +452,13 @@
             }
 
             $.ajax({
-                url: "{{ route('services.invoices.store') }}",
+                url: "{{ route('articles.invoices.update', $preInvoice->id) }}",
                 method: 'POST',
                 data: data,
                 success: function(response) {
                     console.log("Invoice saved successfully : ", response);
                     alert.style.display = 'block';
-                    alertMsg.innerHTML = "Facture enregistrée avec succès!";
+                    alertMsg.innerHTML = "Facture modifiée avec succès!";
                     setInterval(function() {
                         alert.style.display = 'none';
                     }, 5000);
@@ -427,8 +466,6 @@
                     showItems();
                 }
             })
-            console.log("data : ", data);
-
         }
 
         function activeSaveBtn() {

@@ -11,6 +11,7 @@
                     </button>
                 </div>
                 <div class="table-responsive">
+                    @if (count($services))
                     <table class="table">
                         <thead>
                             <tr>
@@ -54,6 +55,16 @@
                             @endif
                         </tbody>
                     </table>
+                    @else
+                    <tr>
+                        <div class="w-100 d-lg-flex align-items-center justify-content-center px-5 mb-4">
+                            <img class="img-fluid" src="{{ asset('app-assets/images/pages/error.svg') }}" alt="Empty data" />
+                        </div>
+                        <div class="d-lg-flex align-items-center justify-content-center mb-4">
+                            <h3>Aucun service n'a été trouvé, veuillez en ajouter!</h3>
+                        </div>
+                    </tr>
+                    @endif
                 </div>
             </div>
         </div>

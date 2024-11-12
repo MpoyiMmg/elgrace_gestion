@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('pre_invoice_details', function (Blueprint $table) {
             $table->uuid('id')->unique()->primary();
             $table->foreignUuid('pre_invoice_id')->constrained();
-            $table->foreignUuid('service_id')->constrained();
+            $table->foreignUuid('service_id')->nullable()->constrained();
+            $table->foreignUuid('article_id')->nullable()->constrained();
             $table->integer('quantity');
             $table->double('total_amount');
             $table->timestamps();
