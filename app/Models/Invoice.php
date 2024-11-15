@@ -16,4 +16,8 @@ class Invoice extends Model
     public function preInvoice() {
         return $this->belongsTo(PreInvoice::class);
     }
+
+    public function payments() {
+        return $this->hasMany(Payment::class);
+    }
 }

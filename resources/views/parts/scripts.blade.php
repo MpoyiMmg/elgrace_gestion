@@ -30,7 +30,7 @@
 <script src="{{ asset('app-assets/js/scripts/pages/app-invoice-list.js') }}"></script>
 <script src="{{ asset('app-assets/js/scripts/forms/pickers/form-pickers.js') }}"></script>
 
-@if ($route === 'articles.invoices.print')
+@if ($route === 'articles.invoices.print' || $route === 'final-invoices.print')
 <script src="{{ asset('app-assets/js/scripts/pages/app-invoice-print.js') }}"></script>
 @endif
 

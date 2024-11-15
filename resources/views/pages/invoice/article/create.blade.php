@@ -121,6 +121,7 @@
                                                     <p class="card-text col-title mb-md-50 mb-0">Service</p>
                                                     <select class="form-control item-details" id="_service">
                                                         <option value="" selected disabled>Selectionner un service</option>
+                                                        <option value="">Aucun service</option>
                                                         @foreach($services as $service)
                                                         <option value="{{ $service->id }}">{{ $service->name }}</option>
                                                         @endforeach
@@ -177,9 +178,9 @@
                                         <thead>
                                             <tr>
                                                 <th class="py-1">Article</th>
-                                                <th class="py-1">Service</th>
                                                 <th class="py-1">Prix unitaire</th>
                                                 <th class="py-1">Quantité</th>
+                                                <th class="py-1">Total</th>
                                                 <th class="py-1"></th>
                                                 <th></th>
                                             </tr>
@@ -238,6 +239,10 @@
                     <div class="card-body">
                         <!-- <button class="btn btn-primary btn-block mb-75" disabled>Send Invoice</button> -->
                         <!-- <a href="./app-invoice-preview.html" class="btn btn-outline-primary btn-block mb-75">Preview</a> -->
+                        <button class="btn btn-outline-primary btn-block" type="button" id="_loading_btn" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span class="sr-only">Loading...</span>
+                        </button>
                         <button type="button" class="btn btn-primary btn-block" id="_save_btn" onclick="saveInvoice()">Enregistrer</button>
                     </div>
                 </div>
@@ -249,10 +254,13 @@
         let unitPrice = 0;
         var addItemBtn = document.querySelector("#_add_Item_btn");
         var saveBtn = document.querySelector("#_save_btn");
+        var loadingBtn = document.querySelector("#_loading_btn");
         var alert = document.querySelector("#_alert_el");
         var errorAlert = document.querySelector("#_alert_error");
+
         alert.style.display = 'none';
         errorAlert.style.display = 'none';
+        loadingBtn.style.display = 'none';
 
         window.onload = function() {
             var service = document.querySelector("#_service").value;
@@ -283,10 +291,12 @@
         }
 
         function calculOfPrice() {
+            var article = document.querySelector('#_article').value;
             var quantity = document.querySelector("#_quantity").value;
             var priceText = document.querySelector('#_price_text');
 
-            if (quantity > 0) {
+
+            if (quantity > 0 && article !== "") {
                 addItemBtn.disabled = false;
             } else {
                 addItemBtn.disabled = true;
@@ -316,6 +326,7 @@
                 data: data,
                 success: function(response) {
                     console.log("Item added successfully");
+                    addItemBtn.disabled = true;
                     showItems();
                     // location.reload();
                 }
@@ -412,6 +423,8 @@
         }
 
         function saveInvoice() {
+            loadingBtn.style.display = 'block';
+            saveBtn.style.display = 'none';
             var selectedClient = document.querySelector('#_selected_client').value;
             var creationDate = document.querySelector('#_creation_date').value;
             var dueDate = document.querySelector('#_due_date').value;
@@ -428,21 +441,25 @@
                 setInterval(function() {
                     errorAlert.style.display = 'none';
                 }, 5000);
-            } else if(creationDate.trim() === "")  {
+            } else if (creationDate.trim() === "") {
                 isValid = false;
                 errorAlert.style.display = "block";
                 errorAlertMsg.innerHTML = "Veuillez renseigner la date de création de la facture!";
 
                 setInterval(function() {
                     errorAlert.style.display = 'none';
+                    loadingBtn.style.display = 'none';
+                    saveBtn.style.display = 'block';
                 }, 5000);
-            } else if(selectedClient.trim() == '') {
+            } else if (selectedClient.trim() == '') {
                 isValid = false;
                 errorAlert.style.display = "block";
                 errorAlertMsg.innerHTML = "Veuillez sélectionner un client!";
 
                 setInterval(function() {
                     errorAlert.style.display = 'none';
+                    loadingBtn.style.display = 'none';
+                    saveBtn.style.display = 'block';
                 }, 5000);
             } else {
                 isValid = true;
@@ -459,7 +476,7 @@
                     items: serviceItems,
                     _token: "{{ csrf_token() }}"
                 }
-    
+
                 $.ajax({
                     url: "{{ route('articles.invoices.store') }}",
                     method: 'POST',
@@ -469,7 +486,14 @@
                         alertMsg.innerHTML = "Facture enregistrée avec succès!";
                         setInterval(function() {
                             alert.style.display = 'none';
+                            saveBtn.style.display = 'block';
+                            loadingBtn.style.display = 'none';
                         }, 5000);
+
+                        document.querySelector('#_selected_client').value = "";
+                        document.querySelector('#_creation_date').value = "";
+                        document.querySelector('#_due_date').value = "";
+
                         resetItemsFromStorage();
                         showItems();
                     }

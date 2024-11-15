@@ -9,7 +9,7 @@
                 @endrole
             </div>
             <div class="card-datatable table-responsive">
-                @if (count($preInvoices))
+                @if (count($invoices))
                 <table class="invoice-list-table table">
                     <thead>
                         <tr>
@@ -17,16 +17,15 @@
                             <th>#</th>
                             <th>Référence</th>
                             <th>Client</th>
-                            <th>Total</th>
-                            <th class="text-truncate">Issued Date</th>
-                            <th>Invoice Status</th>
+                            <th>Total à payer</th>
+                            <th>Statut</th>
                             <th class="cell-fit">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if ($preInvoices)
+                        @if ($invoices)
                         @role('cashier')
-                        @foreach ($preInvoices as $invoice)
+                        @foreach ($invoices as $invoice)
                         <tr>
                             <td></td>
                             <td>
@@ -38,21 +37,16 @@
                             </td>
                             <td>
                                 <i data-feather="user"></i>
-                                {{ $invoice->client['name'] }}
+                                {{ $invoice->preInvoice->client['name'] }}
                             </td>
-                            <td>${{ number_format($invoice->total_amount, 2, '.', ',') }}</td>
-                            <td class="text-truncate">{{ date('d-m-Y', strtotime($invoice->issue_date)) }}</td>
+                            <td>${{ number_format($invoice->preInvoice->total_ttc, 2, '.', ',') }}</td>
                             <td>
-                                @if ($invoice->status === 'draft')
-                                    <div class="badge badge-info">En cours de création</div>
-                                @elseif ($invoice->status === 'pending')
-                                    <div class="badge badge-warning">En attente de validation</div>
-                                @elseif ($invoice->status === 'validated')
-                                    <div class="badge badge-success">Facture prête à être envoyée</div>
-                                @elseif ($invoice->status === 'accepted')
-                                    <div class="badge badge-secondary">Proformat convertie en facture</div>
+                                @if ($invoice->status === 'partialy_paid')
+                                    <div class="badge badge-info">Payée partillement</div>
+                                @elseif ($invoice->status === 'unpaid')
+                                    <div class="badge badge-warning">En attente de paiement</div>
                                 @else
-                                    <div class="badge badge-danger">Facture à corriger</div>
+                                    <div class="badge badge-success">Payée</div>
                                 @endif
                             </td>
                             <td>
@@ -62,7 +56,7 @@
                                     </button>
 
                                     <div class="dropdown-menu ">
-                                        <a class="dropdown-item" href="{{ route('articles.invoices.show', $invoice->id) }}">
+                                        <a class="dropdown-item" href="{{ route('final-invoices.details', $invoice->id) }}">
                                             <i data-feather="eye" class="mr-50"></i>
                                             <span>Détails</span>
                                         </a>
@@ -78,7 +72,7 @@
                         @endrole
 
                         @role(['admin', 'manager'])
-                        @foreach ($preInvoices as $invoice)
+                        @foreach ($invoices as $invoice)
                         <tr>
                             <td></td>
                             <td>
@@ -90,19 +84,16 @@
                             </td>
                             <td>
                                 <i data-feather="user"></i>
-                                {{ $invoice->client['name'] }}
+                                {{ $invoice->preInvoice->client['name'] }}
                             </td>
-                            <td>${{ number_format($invoice->total_amount, 2, '.', ',') }}</td>
-                            <td class="text-truncate">{{ date('d-m-Y', strtotime($invoice->issue_date)) }}</td>
+                            <td>${{ number_format($invoice->preInvoice->total_ttc, 2, '.', ',') }}</td>
                             <td>
-                                @if ($invoice->status === 'pending')
-                                    <div class="badge badge-warning">Proformat à valider</div>
-                                @elseif ($invoice->status === 'validated')
-                                    <div class="badge badge-success">Proformat prête à être envoyée</div>
-                                @elseif ($invoice->status === 'accepted')
-                                    <div class="badge badge-secondary">Proformat convertie en facture</div>
+                                @if ($invoice->status === 'unpaid')
+                                    <div class="badge badge-warning">En attente de paiement</div>
+                                @elseif ($invoice->status === 'paid')
+                                    <div class="badge badge-success">Payée</div>
                                 @else
-                                    <div class="badge badge-danger">En attente de correction</div>
+                                    <div class="badge badge-info">Payée partillement</div>
                                 @endif
                             </td>
                             <td>
@@ -111,9 +102,9 @@
                                         <i data-feather="more-vertical"></i>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="{{ route('articles.invoices.show', $invoice->id) }}">
+                                        <a class="dropdown-item" href="{{ route('final-invoices.details', $invoice->id) }}">
                                             <i data-feather="eye" class="mr-50"></i>
-                                            <span>Détails</span>
+                                            <span>Voir détails</span>
                                         </a>
                                         <a class="dropdown-item" href="javascript:void(0);">
                                             <i data-feather="trash" class="mr-50"></i>
@@ -135,9 +126,9 @@
                     </div>
                     <div class="d-lg-flex align-items-center justify-content-center mb-4">
                         @role('cashier')
-                        <h3>Aucune proformat n'a été trouvée, veuillez en ajouter!</h3>
+                        <h3>Aucune facture n'a été trouvée, veuillez en ajouter!</h3>
                         @else
-                        <h3>Aucune proformat n'a été trouvée!</h3>
+                        <h3>Aucune facture n'a été trouvée!</h3>
                         @endrole
                     </div>
                 </tr>

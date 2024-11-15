@@ -30,6 +30,9 @@
                     </li>
                 </ul>
             </li>
+            <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('final-invoices.index') }}">
+                    <i data-feather="file-text"></i><span class="menu-title text-truncate" data-i18n="Email">Factures finales</span></a>
+            </li>
             @role (['admin', 'manager'])
             <li class=" navigation-header"><span data-i18n="Apps &amp; Pages">Apps</span><i data-feather="more-horizontal"></i></li>
             <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('articles.index') }}">

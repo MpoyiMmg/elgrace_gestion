@@ -4,7 +4,7 @@
             <!-- Invoice -->
             <div class="col-xl-9 col-md-8 col-12">
                 @role(['manager', 'admin'])
-                @if ($preInvoice->status === 'rejected')
+                @if ($invoice->status === 'rejected')
                 <div class="alert alert-warning fade show" role="alert">
                     <div class="alert-body">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info mr-50 align-middle">
@@ -19,7 +19,7 @@
                 @endrole
 
                 @role('cashier')
-                @if ($preInvoice->status === 'pending')
+                @if ($invoice->status === 'pending')
                 <div class="alert alert-warning fade show" role="alert">
                     <div class="alert-body">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info mr-50 align-middle">
@@ -32,7 +32,7 @@
                 </div>
                 @endif
 
-                @if ($preInvoice->status === 'rejected')
+                @if ($invoice->status === 'rejected')
                 <div class="alert alert-warning fade show" role="alert">
                     <div class="alert-body">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info mr-50 align-middle">
@@ -76,15 +76,15 @@
                             <div class="mt-md-0 mt-2">
                                 <h4 class="invoice-title">
                                     Facture :
-                                    <span class="invoice-number">{{ $preInvoice->reference }}</span>
+                                    <span class="invoice-number">{{ $invoice->reference }}</span>
                                 </h4>
                                 <div class="invoice-date-wrapper">
                                     <p class="invoice-date-title">Date :</p>
-                                    <p class="invoice-date">{{ date('d/m/Y', strtotime($preInvoice->issue_date))}}</p>
+                                    <p class="invoice-date">{{ date('d/m/Y', strtotime($invoice->preInvoice->issue_date))}}</p>
                                 </div>
                                 <div class="invoice-date-wrapper">
                                     <p class="invoice-date-title">Date d'échéance:</p>
-                                    <p class="invoice-date">{{ date('d/m/Y', strtotime($preInvoice->expiry_date))}}</p>
+                                    <p class="invoice-date">{{ date('d/m/Y', strtotime($invoice->preInvoice->expiry_date))}}</p>
                                 </div>
                             </div>
                         </div>
@@ -98,11 +98,11 @@
                         <div class="row invoice-spacing">
                             <div class="col-xl-8 p-0">
                                 <h6 class="mb-2">Facturé à :</h6>
-                                <h6 class="mb-25">{{ $preInvoice->client['name'] }}</h6>
-                                <p class="card-text mb-25">{{ $preInvoice->client['contact'] }}</p>
-                                <p class="card-text mb-25">{{ $preInvoice->client['address'] }}</p>
-                                <p class="card-text mb-25">{{ $preInvoice->client['phone'] }}</p>
-                                <p class="card-text mb-0">{{ $preInvoice->client['email'] }}</p>
+                                <h6 class="mb-25">{{ $invoice->preInvoice->client['name'] }}</h6>
+                                <p class="card-text mb-25">{{ $invoice->preInvoice->client['contact'] }}</p>
+                                <p class="card-text mb-25">{{ $invoice->preInvoice->client['address'] }}</p>
+                                <p class="card-text mb-25">{{ $invoice->preInvoice->client['phone'] }}</p>
+                                <p class="card-text mb-0">{{ $invoice->preInvoice->client['email'] }}</p>
                             </div>
                             <div class="col-xl-4 p-0 mt-xl-0 mt-2">
                                 <!-- <h6 class="mb-2">Payment Details:</h6>
@@ -181,22 +181,24 @@
                             </div>
                             <div class="col-md-6 d-flex justify-content-end order-md-2 order-1">
                                 <div class="invoice-total-wrapper">
-                                    <!-- <div class="invoice-total-item">
-                                        <p class="invoice-total-title">Subtotal:</p>
-                                        <p class="invoice-total-amount">$1800</p>
+                                    <div class="invoice-total-item">
+                                        <p class="invoice-total-title">Total HT:</p>
+                                        <p class="invoice-total-amount">${{ number_format($invoice->preInvoice->total_ht, 2, '.', ',') }}</p>
                                     </div>
                                     <div class="invoice-total-item">
-                                        <p class="invoice-total-title">Discount:</p>
-                                        <p class="invoice-total-amount">$28</p>
+                                        <p class="invoice-total-title">Tva (16%):</p>
+                                        <p class="invoice-total-amount">${{ number_format($invoice->preInvoice->tva, 2, '.', ',') }}</p>
                                     </div>
+                                    @if ($invoice->preInvoice->reduction_rate > 0)
                                     <div class="invoice-total-item">
-                                        <p class="invoice-total-title">Tax:</p>
-                                        <p class="invoice-total-amount">21%</p>
-                                    </div> -->
+                                        <p class="invoice-total-title font-weight-bold">Réd. ({{ $invoice->preInvoice->reduction_rate }}%):</p>
+                                        <p class="invoice-total-amount">${{ number_format($invoice->reduction_ht, 2, '.', ',') }}</p>
+                                    </div>
+                                    @endif
                                     <hr class="my-50" />
                                     <div class="invoice-total-item">
                                         <p class="invoice-total-title">Total:</p>
-                                        <p class="invoice-total-amount">${{ number_format($totalPrice, 2, '.', ',') }}</p>
+                                        <p class="invoice-total-amount">${{ number_format($invoice->preInvoice->total_ttc, 2, '.', ',') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -233,20 +235,14 @@
                             Print
                         </a> -->
                         @role('cashier')
-                        @if ($preInvoice->status === 'draft')
-                        <button class="btn btn-outline-primary btn-block" type="button" id="_loading_btn" disabled>
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            <span class="sr-only">Loading...</span>
-                        </button>
+                        @if ($invoice->status === 'draft')
                         <button class="btn btn-primary btn-block mb-75 waves-effect" onclick="sendForValidation()" id="_validation_btn">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check mr-25">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
                             <span>Envoyer pour validation</span>
                         </button>
-                        @endif
-                        @if ($preInvoice->status === 'draft' || $preInvoice->status === 'rejected')
-                        <a class="btn btn-outline-secondary btn-block mb-75" href="{{ route('articles.invoices.edit', $preInvoice->id) }}">
+                        <a class="btn btn-outline-secondary btn-block mb-75" href="{{ route('articles.invoices.edit', $invoice->id) }}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2">
                                 <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                             </svg>
@@ -256,18 +252,14 @@
                         @endrole
 
                         @role(['admin', 'manager'])
-                        @if ($preInvoice->status === 'pending')
-                        <button class="btn btn-outline-primary btn-block" type="button" id="_loading_btn" disabled>
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            <span class="sr-only">Loading...</span>
-                        </button>
+                        @if ($invoice->status === 'pending')
                         <button class="btn btn-outline-primary btn-block mb-75 waves-effect" onclick="valdateInvoice()" id="_validate_btn">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check mr-25">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
                             <span>Valider</span>
                         </button>
-                        <a class="btn btn-outline-danger btn-block mb-75 waves-effect" onclick="rejectInvoice()" id="_reject_btn">
+                        <a class="btn btn-outline-danger btn-block mb-75" onclick="rejectInvoice()" id="_reject_btn">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -277,12 +269,8 @@
 
                         @endif
 
-                        @if ($preInvoice->status === 'validated')
-                        <button class="btn btn-outline-primary btn-block" type="button" id="_loading_btn" disabled>
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            <span class="sr-only">Loading...</span>
-                        </button>
-                        <a class="btn btn-outline-info btn-block mb-75" onclick="convertToInvoice()" id="_convert_btn">
+                        @if ($invoice->status === 'validated')
+                        <a class="btn btn-outline-info btn-block mb-75" onclick="convertToInvoice()" id="">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                 <polyline points="14 2 14 8 20 8"></polyline>
@@ -294,42 +282,141 @@
                         </a>
                         @endif
                         @endrole
-                        <a class="btn btn-outline-success btn-block mb-75 waves-effect" href="{{ route('articles.invoices.print', $preInvoice->id) }}" target="_blank">
+                        <a class="btn btn-outline-success btn-block mb-75 waves-effect" href="{{ route('final-invoices.print', $invoice->id) }}" target="_blank">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file">
                                 <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
                                 <polyline points="13 2 13 9 20 9"></polyline>
                             </svg>
                             <span>Imprimer</span>
                         </a>
-
+                        @if ($invoice->status !== 'paid')
+                        <button type="button" class="btn btn-outline-primary btn-block mb-75 waves-effect" data-toggle="modal" id="_save_payment" data-target="#large">
+                            Enregistrer le paiement
+                        </button>
+                        @endif
                         <!-- <button class="btn btn-success btn-block" data-toggle="modal" data-target="#add-payment-sidebar">
                             Add Payment
                         </button> -->
                     </div>
                 </div>
+
+                @if ($invoice->status !== 'unpaid')
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Détails de paiement</h4>
+                    </div>
+                    <div class="card-body">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td class="pr-1">Montant payé:</td>
+                                    <td><strong>${{ $invoice->paid_amount}}</strong></td>
+                                </tr>
+                                @if ($invoice->remaining_amount > 0)
+                                <tr class="mt-2">
+                                    <td class="pr-1">Montant restant:</td>
+                                    <td><strong>${{ $invoice->remaining_amount }}</strong></td>
+                                </tr>
+                                @endif
+                                <tr class="mt-2">
+                                    <td class="pr-1">Date du dernier paiement:</td>
+                                    <td><strong>{{ date('d/m/Y', strtotime($invoice->payment_date)) }}</strong></td>
+                                </tr>
+                                <tr class="mt-2">
+                                    <td class="pr-1">Status:</td>
+                                    <td>
+                                        @if($invoice->status === 'paid')
+                                        <div class="badge badge-success">Payé complètement</div>
+                                        @elseif($invoice->status === 'partialy_paid')
+                                        <div class="badge badge-info">Payée partiellement</div>
+                                        @else
+                                        <div class="badge badge-warning">En attente de paiement</div>
+                                        @endif
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @else
+                <div class="text-center">
+                    <div class="badge badge-warning">FACTURE NON PAYEE</div>
+                </div>
+                @endif
             </div>
-            <!-- /Invoice Actions -->
+        </div>
+        <!-- /Invoice Actions -->
         </div>
     </section>
+
+    <!-- modal -->
+    <div class="modal fade text-left" id="large" tabindex="-1" role="dialog" aria-labelledby="myModalLabel17" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel17">Enregistrement du paiment</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-modal-todo" class="todo-modal needs-validation">
+                        @csrf
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="_payment_date">Date de paiement</label>
+                                    <input type="text" id="_payment_date" class="form-control invoice-edit-input flatpickr-basic" placeholder="YYYY-MM-DD" />
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="_payment_mode">Type de paiement</label>
+                                    <select class="form-control" id="_payment_mode">
+                                        <option value="" selected disabled>Selectionner un type de paiement</option>
+                                        <option>Mobile Money</option>
+                                        <option>Bancaire</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="_payed_amount">Montant payé</label>
+                                    <input type="number" id="_payed_amount" class="form-control" name="unit_price" placeholder="Ex: 100" />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-primary" type="button" id="_loading_btn" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span class="sr-only">Loading...</span>
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="savePayment()" id="_save_btn">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal -->
     <script>
         var alert = document.querySelector("#_alert_el");
         var errorAlert = document.querySelector("#_alert_error");
         alert.style.display = 'none';
         errorAlert.style.display = 'none';
 
-        let invoiceId = `{{ $preInvoice->id }}`;
+        let invoiceId = `{{ $invoice->id }}`;
 
         let validatedBtn = document.querySelector("#_validate_btn");
         let validationBtn = document.querySelector("#_validation_btn");
         let rejectBtn = document.querySelector("#_reject_btn");
-        let convertBtn = document.querySelector("#_convert_btn");
-
         let loadingBtn = document.querySelector("#_loading_btn");
+        let saveBtn = document.querySelector("#_save_btn");
+        let savePaymentBtn = document.querySelector("#__save_payment");
+
         loadingBtn.style.display = 'none';
 
         function valdateInvoice() {
-            loadingBtn.style.display = 'block';
-            validatedBtn.style.display = 'none';
             var alertMsg = document.querySelector("#_alert_msg");
             var errorAlertMsg = document.querySelector("#_error_alert_msg");
 
@@ -347,12 +434,10 @@
 
                         setTimeout(function() {
                             alert.style.display = 'none';
-                            validatedBtn.style.display = 'block';
-                            loadingBtn.style.display = 'none';
                         }, 5000);
 
-                        // validatedBtn.style.display = 'none';
-                        // rejectBtn.style.display = 'none';
+                        validatedBtn.style.display = 'none';
+                        rejectBtn.style.display = 'none';
                         window.location.reload();
                     }
                 },
@@ -369,8 +454,6 @@
         }
 
         function sendForValidation() {
-            validationBtn.style.display = 'none';
-            loadingBtn.style.display = 'block';
             var alertMsg = document.querySelector("#_alert_msg");
             var errorAlertMsg = document.querySelector("#_error_alert_msg");
 
@@ -387,8 +470,6 @@
 
                         setTimeout(function() {
                             alert.style.display = 'none';
-                            validationBtn.style.display = 'block';
-                            loadingBtn.style.display = 'none';
                         }, 5000);
 
                         validationBtn.style.display = 'none';
@@ -399,9 +480,6 @@
         }
 
         function rejectInvoice() {
-            loadingBtn.style.display = 'block';
-            validatedBtn.style.display = 'none';
-            rejectBtn.style.display = 'none';
             var alertMsg = document.querySelector("#_alert_msg");
             var errorAlertMsg = document.querySelector("#_error_alert_msg");
 
@@ -418,10 +496,10 @@
 
                         setTimeout(function() {
                             errorAlert.style.display = 'none';
-                            validationBtn.style.display = 'block';
-                            rejectBtn.style.display = 'block';
-                            loadingBtn.style.display = 'none';
                         }, 5000);
+
+                        validationBtn.style.display = 'none';
+                        rejectBtn.style.display = 'none';
 
                         window.location.reload();
                     }
@@ -439,9 +517,6 @@
         }
 
         function convertToInvoice() {
-            convertBtn.style.display = "none";
-            loadingBtn.style.display = 'block';
-
             var alertMsg = document.querySelector("#_alert_msg");
             var errorAlertMsg = document.querySelector("#_error_alert_msg");
 
@@ -458,11 +533,9 @@
 
                         setTimeout(function() {
                             alert.style.display = 'none';
-                            convertBtn.style.display = 'block';
-                            loadingBtn.style.display = 'none';
                         }, 5000);
+                        window.location.reload();
                     }
-                    window.location.reload();
                 },
                 error: function(error) {
                     errorAlert.style.display = 'block';
@@ -477,6 +550,42 @@
                     // console.log("Validation error : ", error.status);
                 }
             })
+        }
+
+        function savePayment() {
+            saveBtn.style.display = 'none';
+            loadingBtn.style.display = 'block';
+            const invoiceId = `{{ $invoice->id }}`;
+            var payment_date = document.querySelector('#_payment_date');
+            var payment_mode = document.querySelector('#_payment_mode');
+            var payed_amount = document.querySelector('#_payed_amount');
+            var alertMsg = document.querySelector("#_alert_msg");
+            var errorAlertMsg = document.querySelector("#_error_alert_msg");
+
+            $.ajax({
+                url: `{{ route('final-invoices.add-payment', ':id') }}`.replace(':id', invoiceId),
+                method: 'POST',
+                data: {
+                    payment_date: payment_date.value,
+                    payment_mode: payment_mode.value,
+                    payment_amount: payed_amount.value,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    if (response) {
+                        alert.style.display = 'block';
+                        alertMsg.innerHTML = "Paiement enregistré avec succès!";
+                        setInterval(function() {
+                            alert.style.display = 'none';
+                            saveBtn.style.display = 'block';
+                            loadingBtn.style.display = 'none';
+                            $('#large').fadeOut();
+                        }, 5000);
+
+                        window.location.reload();
+                    }
+                }
+            });
         }
     </script>
 </x-main>

@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->uuid('id')->unique()->primary();
-            $table->string('reference')->unique()->nullable();
+            $table->string('reference')->unique();
             $table->foreignUuid('pre_invoice_id')->constrained();
             $table->enum('status', ['unpaid', 'partialy_paid', 'paid'])->default('unpaid');
             $table->date('payment_date')->nullable();
             $table->date('completed_payment_date')->nullable();
-            $table->double('paid_amount')->nullable();
-            $table->double('remaining_amount')->nullable();
+            $table->double('paid_amount')->default(0);
+            $table->double('remaining_amount')->default(0);
             $table->timestamps();
         });
     }

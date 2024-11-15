@@ -55,8 +55,9 @@ License: You must have a valid license purchased only from themeforest(the above
         $route === 'articles.invoices.show' ||
         $route === 'services.invoices.create' || 
         $route === 'services.invoices.edit' || 
-        $route === 'services.invoices.show'
-        )
+        $route === 'services.invoices.show' ||
+        $route === 'final-invoices.details'
+       )
     <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/pages/app-invoice.css') }}">
     @endif
 
@@ -67,8 +68,18 @@ License: You must have a valid license purchased only from themeforest(the above
     <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/pages/app-invoice-list.css') }}">
     @endif
 
-    @if ($route === 'articles.invoices.print')
+    @if ($route === 'articles.invoices.print' || $route === 'final-invoices.print')
     <link rel="stylesheet" type="text/css" href="{{ asset('app-assets/css/pages/app-invoice-print.css') }}">
+    <style>
+        @media print { 
+            body {
+                background-image: url('{{ asset("app-assets//images/seal/color.png")}}');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: center;
+            }
+        }
+    </style>
     @endif
 
     <!-- END: Page CSS-->
@@ -85,7 +96,7 @@ License: You must have a valid license purchased only from themeforest(the above
 <body class="vertical-layout vertical-menu-modern {{$route === 'articles.invoices.print' ? 'blank-page' : '' }}  navbar-floating footer-static  " data-open="click" data-menu="vertical-menu-modern" data-col="{{$route === 'articles.invoices.print' ? 'blank-page' : '' }}">
 
     <!-- BEGIN: Header-->
-    @if ($route !== 'articles.invoices.print')
+    @if ($route !== 'articles.invoices.print' && $route !== 'final-invoices.print')
     <x-app.nav></x-app.nav>
     <!-- END: Header-->
     <!-- BEGIN: Main Menu-->
@@ -100,7 +111,7 @@ License: You must have a valid license purchased only from themeforest(the above
         <div class="header-navbar-shadow"></div>
         <div class="content-wrapper">
             <div class="content-header row">
-            @if ($route !== 'articles.invoices.print')
+            @if ($route !== 'articles.invoices.print' && $route !== 'final-invoices.print')
                 <div class="content-header-left col-md-9 col-12 mb-2">
                     <div class="row breadcrumbs-top">
                         <div class="col-12">
@@ -140,7 +151,7 @@ License: You must have a valid license purchased only from themeforest(the above
     <div class="sidenav-overlay"></div>
     <div class="drag-target"></div>
     
-    @if ($route !== 'articles.invoices.print')
+    @if ($route !== 'articles.invoices.print' && $route !== 'final-invoices.print')
         <!-- BEGIN: Footer-->
         @include('parts.footer')
         <!-- END: Footer-->

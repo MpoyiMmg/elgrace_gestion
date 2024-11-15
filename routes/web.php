@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PreInvoiceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
@@ -74,6 +75,13 @@ Route::middleware('auth')->group(function () {
         Route::post('articles-invoices/{invoice}/reject', 'rejectArticleInvoice')->name('articles.invoices.reject');
         Route::post('/articles-invoices/{invoice}/send-for-validation', 'sendForValidation')->name('articles.invoices.sendForValidation');
         Route::post('/articles-invoices/{invoice}/to-invoice', 'articleProformatToInvoice')->name('articles.invoices.toInvoice');
+    });
+
+    Route::controller(InvoiceController::class)->group(function () {
+        Route::get('/final-invoices', 'index')->name('final-invoices.index');
+        Route::get('/final-invoices/{invoice}', 'details')->name('final-invoices.details');
+        Route::get('/final-invoices/{invoice}/print', 'printInvoice')->name('final-invoices.print');
+        Route::post('/final-invoices/{invoice}/add-payment', 'makePayment')->name('final-invoices.add-payment');
     });
 });
 
