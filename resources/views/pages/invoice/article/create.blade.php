@@ -11,6 +11,14 @@
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
+                <div class="alert alert-danger alert-dismissible fade show" id="_alert_error" role="alert">
+                    <div class="alert-body" id="_error_alert_msg">
+
+                    </div>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
                 <div class="card invoice-preview-card">
                     <!-- Header starts -->
                     <div class="card-body invoice-padding pb-0">
@@ -24,17 +32,6 @@
                                 <p class="card-text mb-0">+1 (123) 456 7891, +44 (876) 543 2198</p> -->
                             </div>
                             <div class="invoice-number-date mt-md-0 mt-2">
-                                <div class="d-flex align-items-center justify-content-md-end mb-1">
-                                    <h4 class="invoice-title">Réf.</h4>
-                                    <div class="input-group input-group-merge invoice-edit-input-group">
-                                        <div class="input-group-prepend">
-                                            <div class="input-group-text">
-                                                <i data-feather="hash"></i>
-                                            </div>
-                                        </div>
-                                        <input type="text" class="form-control invoice-edit-input" id="_reference" placeholder="53634" />
-                                    </div>
-                                </div>
                                 <div class="d-flex align-items-center mb-1">
                                     <span class="title">Date:</span>
                                     <input type="text" id="_creation_date" class="form-control invoice-edit-input flatpickr-basic" placeholder="YYYY-MM-DD" />
@@ -183,7 +180,7 @@
                                                 <th class="py-1">Service</th>
                                                 <th class="py-1">Prix unitaire</th>
                                                 <th class="py-1">Quantité</th>
-                                                <th class="py-1">Total</th>
+                                                <th class="py-1"></th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -253,7 +250,9 @@
         var addItemBtn = document.querySelector("#_add_Item_btn");
         var saveBtn = document.querySelector("#_save_btn");
         var alert = document.querySelector("#_alert_el");
+        var errorAlert = document.querySelector("#_alert_error");
         alert.style.display = 'none';
+        errorAlert.style.display = 'none';
 
         window.onload = function() {
             var service = document.querySelector("#_service").value;
@@ -416,35 +415,66 @@
             var selectedClient = document.querySelector('#_selected_client').value;
             var creationDate = document.querySelector('#_creation_date').value;
             var dueDate = document.querySelector('#_due_date').value;
-            var reference = document.querySelector('#_reference').value;
             var alertMsg = document.querySelector("#_alert_msg");
+            var errorAlertMsg = document.querySelector("#_error_alert_msg");
+
+            var isValid = false;
+
+            if (dueDate.trim() === "") {
+                isValid = false;
+                errorAlert.style.display = "block";
+                errorAlertMsg.innerHTML = "Veuillez renseigner la date d'échéance de la facture!";
+
+                setInterval(function() {
+                    errorAlert.style.display = 'none';
+                }, 5000);
+            } else if(creationDate.trim() === "")  {
+                isValid = false;
+                errorAlert.style.display = "block";
+                errorAlertMsg.innerHTML = "Veuillez renseigner la date de création de la facture!";
+
+                setInterval(function() {
+                    errorAlert.style.display = 'none';
+                }, 5000);
+            } else if(selectedClient.trim() == '') {
+                isValid = false;
+                errorAlert.style.display = "block";
+                errorAlertMsg.innerHTML = "Veuillez sélectionner un client!";
+
+                setInterval(function() {
+                    errorAlert.style.display = 'none';
+                }, 5000);
+            } else {
+                isValid = true;
+            }
 
 
             var serviceItems = getItemsFromStorage();
 
-            var data = {
-                reference: reference,
-                issue_date: creationDate,
-                expiry_date: dueDate,
-                client_id: selectedClient,
-                items: serviceItems,
-                _token: "{{ csrf_token() }}"
-            }
-
-            $.ajax({
-                url: "{{ route('articles.invoices.store') }}",
-                method: 'POST',
-                data: data,
-                success: function(response) {
-                    alert.style.display = 'block';
-                    alertMsg.innerHTML = "Facture enregistrée avec succès!";
-                    setInterval(function() {
-                        alert.style.display = 'none';
-                    }, 5000);
-                    resetItemsFromStorage();
-                    showItems();
+            if (isValid) {
+                var data = {
+                    issue_date: creationDate,
+                    expiry_date: dueDate,
+                    client_id: selectedClient,
+                    items: serviceItems,
+                    _token: "{{ csrf_token() }}"
                 }
-            })
+    
+                $.ajax({
+                    url: "{{ route('articles.invoices.store') }}",
+                    method: 'POST',
+                    data: data,
+                    success: function(response) {
+                        alert.style.display = 'block';
+                        alertMsg.innerHTML = "Facture enregistrée avec succès!";
+                        setInterval(function() {
+                            alert.style.display = 'none';
+                        }, 5000);
+                        resetItemsFromStorage();
+                        showItems();
+                    }
+                })
+            }
         }
 
         function resetForm() {

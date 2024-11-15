@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('pre_invoices', function (Blueprint $table) {
             $table->uuid('id')->unique()->primary();
-            $table->string('reference')->unique();
+            $table->string('reference')->unique()->nullable();
             $table->foreignUuid('client_id')->constrained();
             $table->date('issue_date');
             $table->date('expiry_date')->nullable();
-            $table->enum('status', ['draft', 'sent', 'accepted', 'rejected', 'pending']);
+            $table->enum('status', ['draft', 'sent', 'accepted', 'rejected', 'pending', 'validated']);
+            $table->date('validated_at')->nullable();
+            $table->uuid('validated_by')->nullable()->constrained('users');
+            $table->unsignedInteger('number')->nullable();
             $table->double('total_amount');
             $table->timestamps();
         });

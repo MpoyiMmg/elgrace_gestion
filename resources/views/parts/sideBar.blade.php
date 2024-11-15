@@ -18,20 +18,9 @@
             <li class="active nav-item"><a class="d-flex align-items-center" href="{{ route('dashboard') }}"><i
                         data-feather="home"></i><span class="menu-title text-truncate" data-i18n="Home">Tableau de board</span></a>
             </li>
-            <li class=" navigation-header"><span data-i18n="Apps &amp; Pages">Apps</span><i data-feather="more-horizontal"></i></li>
-            <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('articles.index') }}">
-                <i data-feather="box"></i><span class="menu-title text-truncate" data-i18n="Email">Articles</span></a>
-            </li>
-            <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('services.index') }}">
-                <i data-feather="gift"></i><span class="menu-title text-truncate" data-i18n="Email">Services</span></a>
-            </li>
-
-            <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('clients.index') }}">
-                <i data-feather="users"></i><span class="menu-title text-truncate" data-i18n="Email">Clients</span></a>
-            </li>
             <li class=" navigation-header"><span data-i18n="Apps &amp; Pages">Opérations</span><i data-feather="more-horizontal"></i></li>
             <li class=" nav-item"><a class="d-flex align-items-center" href="#"><i data-feather="file-text"></i><span
-                        class="menu-title text-truncate" data-i18n="Page Layouts">Facturation</span></a>
+                        class="menu-title text-truncate" data-i18n="Page Layouts">Facture proformats</span></a>
                 <ul class="menu-content">
                     <li><a class="d-flex align-items-center" href="{{ route('services.invoices.index') }}"><i
                                 data-feather="circle"></i><span class="menu-item" data-i18n="Collapsed Menu">Services</span></a>
@@ -41,6 +30,23 @@
                     </li>
                 </ul>
             </li>
+            @role (['admin', 'manager'])
+            <li class=" navigation-header"><span data-i18n="Apps &amp; Pages">Apps</span><i data-feather="more-horizontal"></i></li>
+            <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('articles.index') }}">
+                    <i data-feather="box"></i><span class="menu-title text-truncate" data-i18n="Email">Articles</span></a>
+            </li>
+            <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('services.index') }}">
+                    <i data-feather="gift"></i><span class="menu-title text-truncate" data-i18n="Email">Services</span></a>
+            </li>
+
+            <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('clients.index') }}">
+                    <i data-feather="users"></i><span class="menu-title text-truncate" data-i18n="Email">Clients</span></a>
+            </li>
+            <li class=" navigation-header"><span data-i18n="Apps &amp; Pages">Configs</span><i data-feather="more-horizontal"></i></li>
+            <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('clients.index') }}">
+                    <i data-feather="users"></i><span class="menu-title text-truncate" data-i18n="Email">Utilisateurs</span></a>
+            </li>
+            @endrole
         </ul>
     </div>
 </div>

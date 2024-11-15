@@ -132,16 +132,22 @@
                 <div class="invoice-total-wrapper">
                     <div class="invoice-total-item">
                         <p class="invoice-total-title font-weight-bold">Total HT:</p>
-                        <p class="invoice-total-amount">${{ number_format($totalPrice, 2, '.', ',') }}</p>
+                        <p class="invoice-total-amount">${{ number_format($preInvoice->total_ht, 2, '.', ',') }}</p>
                     </div>
                     <div class="invoice-total-item">
                         <p class="invoice-total-title font-weight-bold">TVA (16%):</p>
-                        <p class="invoice-total-amount">$28</p>
+                        <p class="invoice-total-amount">${{ number_format($preInvoice->tva, 2, '.', ',') }}</p>
                     </div>
+                    @if ($preInvoice->reduction_rate > 0)
+                    <div class="invoice-total-item">
+                        <p class="invoice-total-title font-weight-bold">Réd. ({{ $preInvoice->reduction_rate }}%):</p>
+                        <p class="invoice-total-amount">${{ number_format($preInvoice->reduction_ht, 2, '.', ',') }}</p>
+                    </div>
+                    @endif
                     <hr class="my-50" />
                     <div class="invoice-total-item">
                         <p class="invoice-total-title font-weight-bold">TOTAL:</p>
-                        <p class="invoice-total-amount">${{ number_format($totalPrice, 2, '.', ',') }}</p>
+                        <p class="invoice-total-amount">${{ number_format($preInvoice->total_ttc, 2, '.', ',') }}</p>
                     </div>
                 </div>
             </div>

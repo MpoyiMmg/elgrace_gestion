@@ -69,6 +69,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/articles-invoices/{invoice}/print', 'printArticleInvoice')->name('articles.invoices.print');
         Route::get('/articles-invoices/{invoice}/edit', 'editArticleInvoice')->name('articles.invoices.edit');
         Route::post('articles-invoices/{invoice}/update', 'updateArticleInvoice')->name('articles.invoices.update');
+
+        Route::post('articles-invoices/{invoice}/validate', 'validateArticleInvoice')->name('articles.invoices.validate');
+        Route::post('articles-invoices/{invoice}/reject', 'rejectArticleInvoice')->name('articles.invoices.reject');
+        Route::post('/articles-invoices/{invoice}/send-for-validation', 'sendForValidation')->name('articles.invoices.sendForValidation');
+        Route::post('/articles-invoices/{invoice}/to-invoice', 'articleProformatToInvoice')->name('articles.invoices.toInvoice');
     });
 });
 

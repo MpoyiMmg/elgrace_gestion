@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\PreInvoice;
 use App\Models\PreInvoiceDetail;
 use App\Models\Service;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PreInvoiceController extends Controller
 {
@@ -53,7 +56,6 @@ class PreInvoiceController extends Controller
 
         $preInvoice = PreInvoice::create([
             'client_id' => $request->client_id,
-            'reference' => $request->reference,
             'issue_date' => $request->issue_date,
             'expiry_date' => $request->expiry_date,
             'status' => 'pending',
@@ -200,7 +202,15 @@ class PreInvoiceController extends Controller
 
     public function listArticleInvoices()
     {
-        $preInvoices = PreInvoice::all();
+        $user = Auth::user();
+
+        if ($user->hasRole('cashier')) {
+           $preInvoices = PreInvoice::all();
+        } else {
+            $preInvoices = PreInvoice::all()->filter(function ($item) {
+                return $item->status !== 'draft';
+            });
+        }
         return view('pages.invoice.article.index', [
             'preInvoices' => $preInvoices
         ]);
@@ -271,12 +281,14 @@ class PreInvoiceController extends Controller
             'reference' => $request->reference,
             'issue_date' => $request->issue_date,
             'expiry_date' => $request->expiry_date,
-            'status' => 'pending',
+            'status' => 'draft',
             'total_amount' => $totalAmount,
         ]);
 
+        $totalHt = 0;
         // saving details
         foreach ($items as $item) {
+            $totalHt += $item['quantity'] * $item['article']['unit_price'];
             $preInvoice->itemDetails()->create([
                 'article_id' => $item['article']['id'],
                 'service_id' => $item['service'],
@@ -284,6 +296,16 @@ class PreInvoiceController extends Controller
                 'total_amount' => $item['quantity'] * $item['article']['unit_price'],
             ]);
         }
+
+        $tva = $totalHt * 16 / 100; 
+        $totalTTC = $totalHt + $tva;
+
+        $preInvoice->update([
+            'total_ht' => $totalHt,
+            'total_ttc' => $totalTTC,
+            'tva' => $tva,
+        ]);
+
         session(['articles' => []]);
         return response()->json(['message' => "Invoice created successfully"]);
     }
@@ -345,13 +367,24 @@ class PreInvoiceController extends Controller
             $totalAmount += $item['quantity'] * $item['article']['unit_price'];
         }
 
+        $reduction = doubleval($request->reduction_rate);
+        $reductionAmount = $preInvoice->total_ht * ($reduction / 100);
+
+        $total_ht = $preInvoice->total_ht - $reductionAmount;
+        $tva = $total_ht * 16 / 100;
+        $totalTTC = $total_ht + $tva;
+
         $preInvoice->update([
             'client_id' => $request->client_id,
-            'reference' => $request->reference,
             'issue_date' => $request->issue_date,
             'expiry_date' => $request->expiry_date,
-            'status' => 'pending',
+            'status' => 'draft',
             'total_amount' => $totalAmount,
+            'total_ht' => $preInvoice->total_ht,
+            'total_ttc' => $totalTTC,
+            'tva' => $tva,
+            'reduction_rate' => $reduction,
+            'reduction_ht' => $reductionAmount,
         ]);
 
         $preInvoice->itemDetails()->delete();
@@ -368,8 +401,58 @@ class PreInvoiceController extends Controller
         return response()->json(['message' => "Invoice updated successfully"]);
     }
 
-    public function getArticleItems()
-    {
+    public function validateArticleInvoice(Request $request) {
+        $user = Auth::user();
+        $preInvoice = PreInvoice::find($request->invoice);
+        $preInvoice->update([
+            'status' => 'validated',
+            'validated_at' => Carbon::now(),
+            'validated_by' => $user->id
+        ]);
+
+        return response()->json(['message' => "Invoice validated successfully"], 200);
+    }
+
+    public function rejectArticleInvoice(Request $request) {
+        $user = Auth::user();
+        $preInvoice = PreInvoice::find($request->invoice);
+        $preInvoice->update([
+           'status' => 'rejected',
+           'rejected_at' => Carbon::now(),
+           'rejected_by' => $user->id
+        ]);
+
+        return response()->json(['message' => "Invoice rejected successfully"]);
+    }
+
+    public function sendForValidation(Request $request) {
+        $preInvoice = PreInvoice::find($request->invoice);
+        $preInvoice->update([
+            'status' => 'pending'
+        ]);
+
+        return response()->json(['message' => "Invoice sent for validation successfully"]);
+    }
+
+    public function articleProformatToInvoice(Request $request) {
+        $preInvoice = PreInvoice::find($request->invoice);
+
+       
+        if (!is_null($preInvoice->invoice)) {
+            return response()->json(['error' => "Invoice already has an associated invoice"], 400);
+        }
+        Invoice::create([
+            'reference' => $preInvoice->reference,
+            'pre_invoice_id' => $preInvoice->id,
+        ]);
+        
+        $preInvoice->update([
+            'status' => 'accepted'
+        ]);
+        return response()->json(['message' => "Invoice created successfully"]);
+    }
+
+    public function getArticleItems() {
         return response()->json(['articles' => session('articles')]);
     }
     /**
