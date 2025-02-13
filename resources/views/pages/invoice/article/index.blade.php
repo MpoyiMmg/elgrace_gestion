@@ -7,6 +7,21 @@
                     Créer une facture
                 </a>
                 @endrole
+                @role (['admin', 'manager'])
+                <a href="{{ route('articles.invoices.create') }}" class="btn btn-primary">
+                    Créer une facture
+                </a>
+                @endrole
+                <div class="btn-group dropdown-sort">
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle mr-1 waves-effect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="active-sorting">Modules</span>
+                    </button>
+                    <div class="dropdown-menu" style="">
+                        @foreach($modules as $module)
+                        <a class="dropdown-item" href="javascript:void(0);">{{ $module->name }}</a>
+                        @endforeach
+                    </div>
+                </div>
             </div>
             <div class="card-datatable table-responsive">
                 @if (count($preInvoices))
@@ -16,6 +31,7 @@
                             <th></th>
                             <th>#</th>
                             <th>Référence</th>
+                            <th>Module</th>
                             <th>Client</th>
                             <th>Total</th>
                             <th class="text-truncate">Issued Date</th>
@@ -37,6 +53,9 @@
                                 {{ $invoice->reference }}
                             </td>
                             <td>
+                                {{ $invoice->module->name }}
+                            </td>
+                            <td>
                                 <i data-feather="user"></i>
                                 {{ $invoice->client['name'] }}
                             </td>
@@ -44,15 +63,15 @@
                             <td class="text-truncate">{{ date('d-m-Y', strtotime($invoice->issue_date)) }}</td>
                             <td>
                                 @if ($invoice->status === 'draft')
-                                    <div class="badge badge-info">En cours de création</div>
+                                <div class="badge badge-info">En cours de création</div>
                                 @elseif ($invoice->status === 'pending')
-                                    <div class="badge badge-warning">En attente de validation</div>
+                                <div class="badge badge-warning">En attente de validation</div>
                                 @elseif ($invoice->status === 'validated')
-                                    <div class="badge badge-success">Facture prête à être envoyée</div>
+                                <div class="badge badge-success">Facture prête à être envoyée</div>
                                 @elseif ($invoice->status === 'accepted')
-                                    <div class="badge badge-secondary">Proformat convertie en facture</div>
+                                <div class="badge badge-secondary">Proformat convertie en facture</div>
                                 @else
-                                    <div class="badge badge-danger">Facture à corriger</div>
+                                <div class="badge badge-danger">Facture à corriger</div>
                                 @endif
                             </td>
                             <td>
@@ -89,6 +108,9 @@
                                 {{ $invoice->reference }}
                             </td>
                             <td>
+                                {{ $invoice->module->name }}
+                            </td>
+                            <td>
                                 <i data-feather="user"></i>
                                 {{ $invoice->client['name'] }}
                             </td>
@@ -96,13 +118,13 @@
                             <td class="text-truncate">{{ date('d-m-Y', strtotime($invoice->issue_date)) }}</td>
                             <td>
                                 @if ($invoice->status === 'pending')
-                                    <div class="badge badge-warning">Proformat à valider</div>
+                                <div class="badge badge-warning">Proformat à valider</div>
                                 @elseif ($invoice->status === 'validated')
-                                    <div class="badge badge-success">Proformat prête à être envoyée</div>
+                                <div class="badge badge-success">Proformat prête à être envoyée</div>
                                 @elseif ($invoice->status === 'accepted')
-                                    <div class="badge badge-secondary">Proformat convertie en facture</div>
+                                <div class="badge badge-secondary">Proformat convertie en facture</div>
                                 @else
-                                    <div class="badge badge-danger">En attente de correction</div>
+                                <div class="badge badge-danger">En attente de correction</div>
                                 @endif
                             </td>
                             <td>

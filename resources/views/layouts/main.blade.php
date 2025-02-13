@@ -132,7 +132,7 @@ License: You must have a valid license purchased only from themeforest(the above
                         <div class="dropdown">
                             <button class="btn-icon btn btn-primary btn-round btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="grid"></i></button>
                             <div class="dropdown-menu dropdown-menu-right">
-                                <a class="dropdown-item" href="{{ route('dashboard') }}"><i class="mr-1" data-feather="file-text"></i><span class="align-middle">Facturation</span></a>
+                                <a class="dropdown-item" href="{{ route('dashboard') }}"><i class="mr-1" data-feather="file-text"></i><span class="align-middle">Location vente</span></a>
                                 <a class="dropdown-item" href="javascript:void(0);"><i class="mr-1" data-feather="file"></i><span class="align-middle">Licences</span></a>
                                 <a class="dropdown-item" href="javascript:void(0);"><i class="mr-1" data-feather="refresh-cw"></i><span class="align-middle">Cleaning</span></a>
                             </div>

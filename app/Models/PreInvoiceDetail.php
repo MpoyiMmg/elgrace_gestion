@@ -10,18 +10,26 @@ class PreInvoiceDetail extends Model
     use HasUuids;
 
     protected $fillable = [
-        'pre_invoice_id', 'service_id','article_id','quantity', 'total_amount'
+        'pre_invoice_id',
+        'article_id',
+        'quantity',
+        'total_amount',
+        'service_id',
+        'module_invoice_details'
     ];
 
-    public function service() {
+    public function service()
+    {
         return $this->belongsTo(Service::class);
     }
 
-    public function article() {
+    public function article()
+    {
         return $this->belongsTo(Article::class);
     }
 
-    public function preInvoice() {
+    public function preInvoice()
+    {
         return $this->belongsTo(PreInvoice::class);
     }
 }

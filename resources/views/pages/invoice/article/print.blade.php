@@ -32,7 +32,7 @@
 
         <div class="row text-center mt-2 mb-2">
             <div class="col-md-4 offset-md-4">
-                <h3><b>INVOICE N° {{ $preInvoice->reference }}</b></h3>
+                <h3><b>INVOICE {{ $preInvoice->reference }}</b></h3>
             </div>
         </div>
         <div class="row pb-2 mt-2">
@@ -86,6 +86,7 @@
         <div class="table-responsive mt-2">
             <table class="table m-0">
                 <thead>
+                    @if($preInvoice->module->code === 'LCV')
                     <tr>
                         <th class="py-1">N°</th>
                         <th class="py-1">Désignation</th>
@@ -94,8 +95,16 @@
                         <!-- <th class="py-1">Prix unitaire</th> -->
                         <th class="py-1">Prix Total</th>
                     </tr>
+                    @else
+                    <tr>
+                        <th class="py-1">Module</th>
+                        <th class="py-1">Désignation du service</th>
+                        <th class="py-1">Total</th>
+                    </tr>
+                    @endif
                 </thead>
                 <tbody>
+                    @if($preInvoice->module->code === 'LCV')
                     @if($details)
                     @foreach($details as $index => $detail)
                     <tr>
@@ -117,6 +126,23 @@
                         </td>
                     </tr>
                     @endforeach
+                    @endif
+                    @else
+                    @if($details)
+                    @foreach($details as $detail)
+                    <tr>
+                        <td class="py-1">
+                            <p class="card-text font-weight-bold mb-25">{{ $preInvoice->module->name }}</p>
+                        </td>
+                        <td class="py-1">
+                            <p class="card-text font-weight-bold mb-25">{{ $detail->module_invoice_details }}</p>
+                        </td>
+                        <td class="py-1">
+                            <span class="font-weight-bold">${{ number_format($preInvoice->total_ht, 2, '.', ',') }}</span>
+                        </td>
+                    </tr>
+                    @endforeach
+                    @endif
                     @endif
                 </tbody>
             </table>
@@ -146,8 +172,12 @@
                     @endif
                     <hr class="my-50" />
                     <div class="invoice-total-item">
-                        <p class="invoice-total-title font-weight-bold">TOTAL:</p>
+                        <p class="invoice-total-title font-weight-bold">TOTAL TTC:</p>
+                        @if ($preInvoice->module === 'LCV')
+                        <p class="invoice-total-amount">${{ number_format($totalPrice, 2, '.', ',') }}</p>
+                        @else
                         <p class="invoice-total-amount">${{ number_format($preInvoice->total_ttc, 2, '.', ',') }}</p>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -175,26 +205,26 @@
         <div class="row mt-4">
             <div class="col-md-12 col-sm-12 justify-content-between">
                 <p class="invoice-footer-text">
-                    <h6 class="font-weight-bolder">TERMES ET CONDITIONS DE VENTE</h6>
-                    <!-- <p> -->
-                        <span style="font-size: 13px;">1. La livraison des matériels se fait 20 jours après la confirmation de la commande</span><br>
-                        <span style="font-size: 13px;">2. La confirmation de la commande se fait par un paiement de 50% du montant total de la facture et le 50% restant seront payés à la livraison.</span><br>
-                        <span style="font-size: 13px;">3. Si vous n'êtes pas d'accord avec la cotation proposée prière nous contacter directement</span><br>
-                        <span style="font-size: 13px;">4. Le paiement peut se faire par virement bancaire (information bancaire en bas de la facture) ou directement en cash</span><br>
-                        <span style="font-size: 13px;">5. La vérification de la conformité du matériels livrés se fait à la livraison</span><br>
-                        <span style="font-size: 13px;">6. La garantie est fixée pour un delai de trois mois à partir de la date de livraison</span><br>
-                    <!-- </p> -->
+                <h6 class="font-weight-bolder">TERMES ET CONDITIONS DE VENTE</h6>
+                <!-- <p> -->
+                <span style="font-size: 13px;">1. La livraison des matériels se fait 20 jours après la confirmation de la commande</span><br>
+                <span style="font-size: 13px;">2. La confirmation de la commande se fait par un paiement de 50% du montant total de la facture et le 50% restant seront payés à la livraison.</span><br>
+                <span style="font-size: 13px;">3. Si vous n'êtes pas d'accord avec la cotation proposée prière nous contacter directement</span><br>
+                <span style="font-size: 13px;">4. Le paiement peut se faire par virement bancaire (information bancaire en bas de la facture) ou directement en cash</span><br>
+                <span style="font-size: 13px;">5. La vérification de la conformité du matériels livrés se fait à la livraison</span><br>
+                <span style="font-size: 13px;">6. La garantie est fixée pour un delai de trois mois à partir de la date de livraison</span><br>
+                <!-- </p> -->
                 </p>
             </div>
         </div>
         <div class="row mt-5">
             <div class="col-md-12 col-sm-12 text-center">
                 <p class="invoice-footer-text">
-                    <h6 class="font-weight-bolder">INFORMATION DE PAIEMENT</h6>
-                    <p>
-                        <span style="font-size: 13px;">RAWBANK: 00924010001-41 USD</span><br>
-                        <span style="font-size: 13px;">EQUITY BCDC : 160121300120095-USD</span><br>
-                    </p>
+                <h6 class="font-weight-bolder">INFORMATION DE PAIEMENT</h6>
+                <p>
+                    <span style="font-size: 13px;">RAWBANK: 00924010001-41 USD</span><br>
+                    <span style="font-size: 13px;">EQUITY BCDC : 160121300120095-USD</span><br>
+                </p>
                 </p>
             </div>
         </div>

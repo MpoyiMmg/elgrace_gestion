@@ -10,22 +10,38 @@ class PreInvoice extends Model
     use HasUuids;
 
     protected $fillable = [
-        'client_id', 'reference', 'issue_date', 'expiry_date','status', 'total_amount', 'total_ht', 'tva', 'total_ttc', 'reduction_rate', 'reduction_ht'
+        'client_id',
+        'reference',
+        'issue_date',
+        'expiry_date',
+        'status',
+        'total_amount',
+        'total_ht',
+        'tva',
+        'total_ttc',
+        'reduction_rate',
+        'reduction_ht',
+        'service_id',
+        'module_id',
     ];
 
-    public function client() {
+    public function client()
+    {
         return $this->belongsTo(Client::class);
     }
 
-    public function itemDetails() {
+    public function itemDetails()
+    {
         return $this->hasMany(PreInvoiceDetail::class);
     }
 
-    public function calculateTotalItemPrice(){
+    public function calculateTotalItemPrice()
+    {
         return $this->itemDetails()->sum('total_amount');
     }
 
-    public function generateReference() {
+    public function generateReference()
+    {
         $date = date('dmY');
         if ($this->number >= 0 && $this->number < 10) {
             $str = "000";
@@ -36,11 +52,12 @@ class PreInvoice extends Model
         } else {
             $str = "";
         }
-        $reference = "ELGS$date".str_pad($this->number, 5, '#'.$str, STR_PAD_LEFT)."/".date('Y');
+        $reference = "ELGS$date" . str_pad($this->number, 5, '#' . $str, STR_PAD_LEFT) . "/" . date('Y');
         return $reference;
     }
 
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
         static::creating(function ($preInvoice) {
             $preInvoice->number = self::max('number') + 1;
@@ -51,7 +68,16 @@ class PreInvoice extends Model
         });
     }
 
-    public function invoice() {
+    public function invoice()
+    {
         return $this->hasOne(Invoice::class);
+    }
+
+    public function module() {
+        return $this->belongsTo(Module::class);
+    }
+
+    public function comments() {
+        return $this->hasMany(Comment::class);
     }
 }

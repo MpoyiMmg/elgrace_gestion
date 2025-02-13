@@ -65,13 +65,14 @@
                         </div>
                     </div>
                     <!-- Header ends -->
-
+                    <input type="hidden" id="_moduleApp" value="{{ $preInvoice->module->code }}">
+                    <input type="hidden" id="_preInvoice" value="{{ $preInvoice }}">
                     <hr class="invoice-spacing" />
 
                     <!-- Address and Contact starts -->
                     <div class="card-body invoice-padding pt-0">
                         <div class="row row-bill-to invoice-spacing">
-                            <div class="col-xl-5 mb-lg-1 col-bill-to pl-0">
+                            <div class="col-xl-4 mb-lg-1 col-bill-to pl-0">
                                 <h6 class="invoice-to-title">Facturé à :</h6>
                                 <div class="invoice-customer">
                                     <select class="invoiceto form-control" id="_selected_client" onchange="activeSaveBtn()">
@@ -86,11 +87,26 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-xl-4 mb-lg-1 col-bill-to pl-0">
+                                <h6 class="invoice-to-title">Module </h6>
+                                <div class="invoice-customer">
+                                    <select class="form-control item-details" id="_module" name="module" onchange="selectModule()">
+                                        <option value="" selected disabled>Selectionner le module à facturer</option>
+                                        @foreach($modules as $module)
+                                        @if($module->code === $preInvoice->module->code)
+                                        <option value="{{ $module }}" selected>{{ $module->name }}</option>
+                                        @else
+                                        <option value="{{ $module }}">{{ $module->name }}</option>
+                                        @endif
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-xl-4 pr-0 mt-xl-0 mt-2">
                                 <h6 class="mb-2">Appliquer une reduction (%):</h6>
                                 <div class="invoice-customer mt-2 p-1">
                                     <div class="input-group input-group-lg">
-                                        <input type="number" class="touchspin" value="{{ $preInvoice->reduction_rate > 0 ? $preInvoice->reduction_rate : 0 }}" name="stock" id="_reduction_rate"/>
+                                        <input type="number" class="touchspin" value="{{ $preInvoice->reduction_rate > 0 ? $preInvoice->reduction_rate : 0 }}" name="stock" id="_reduction_rate" />
                                     </div>
                                 </div>
                             </div>
@@ -108,6 +124,7 @@
                     </div>
                     <div class="card-body invoice-padding invoice-product-details">
                         <form class="source-item">
+                            @if($preInvoice->module->code === 'LCV')
                             <div data-repeater-list="group-a">
                                 <div class="repeater-wrapper" data-repeater-item>
                                     <div class="row w-100 pr-lg-0 pr-1 py-2">
@@ -162,6 +179,38 @@
                                     </button>
                                 </div>
                             </div>
+                            @else
+                            <div data-repeater-list="group-a">
+                                <div class="repeater-wrapper" data-repeater-item>
+                                    <div class="row">
+                                        <div class="col-12 d-flex product-details-border position-relative pr-0">
+                                            <div class="row w-100 pr-lg-0 pr-1 py-2">
+                                                <div class="col-lg-4 col-12 my-lg-0 my-2">
+                                                    <p class="card-text col-title mb-md-2 mb-0">Intitulé du service</p>
+                                                    <input type="text" class="form-control" value="" id="_service_details" placeholder="Ex: Nettoyage des bureaux ou Obtention licence" />
+                                                </div>
+                                                <div class="col-lg-4 col-12 my-lg-0 my-2">
+                                                    <p class="card-text col-title mb-md-2 mb-0">Prix unitaire</p>
+                                                    <input type="number" class="form-control" min="0" value="0" id="_module_price" oninput="setModulePrice()" />
+                                                </div>
+                                                <div class="col-lg-4 col-12 mt-lg-0 mt-2">
+                                                    <p class="card-text col-title mb-md-50 mb-0">Prix total</p>
+                                                    <p class="card-text mb-0 mt-0" id="_module_price_text">$0.00</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-1">
+                                <div class="col-12 px-0">
+                                    <button type="button" class="btn btn-primary btn-sm btn-add-new" id="_add_Item_btn" onclick="addModuleItem()">
+                                        <i data-feather="plus" class="mr-25"></i>
+                                        <span class="align-middle">Ajouter à la facture</span>
+                                    </button>
+                                </div>
+                            </div>
+                            @endif
                         </form>
                         <hr class="mt-3">
                     </div>
@@ -177,6 +226,7 @@
                                 <div class="table-responsive">
                                     <table class="table" id="items-table">
                                         <thead>
+                                            @if ($preInvoice->module->code === 'LCV')
                                             <tr>
                                                 <th class="py-1">Service</th>
                                                 <th class="py-1">Prix unitaire</th>
@@ -184,6 +234,14 @@
                                                 <th class="py-1">Total</th>
                                                 <th></th>
                                             </tr>
+                                            @else
+                                            <tr>
+                                                <th class="py-1">Module</th>
+                                                <th class="py-1">Détails du service</th>
+                                                <th class="py-1">Total</th>
+                                                <th></th>
+                                            </tr>
+                                            @endif
                                         </thead>
                                         <tbody>
                                         </tbody>
@@ -206,7 +264,7 @@
                                     <hr class="my-50" />
                                     <div class="invoice-total-item">
                                         <p class="invoice-total-title">Total:</p>
-                                        <p class="invoice-total-amount" id="_total_invoice_price_text">$0.0</p>
+                                        <p class="invoice-total-amount" id="_total_invoice_price_text">${{ $preInvoice->total_ttc}}</p>
                                     </div>
                                 </div>
                             </div>
@@ -256,7 +314,13 @@
         alert.style.display = 'none';
 
         window.onload = function() {
-            var service = document.querySelector("#_service").value;
+            var service = document.querySelector("#_service");
+
+            if (!service === null) {
+                service = service.value;
+            } else {
+                service = "";
+            }
 
             if (service == "") {
                 addItemBtn.disabled = true;
@@ -346,55 +410,114 @@
 
         function showItems() {
             var invoicePriceText = document.querySelector('#_total_invoice_price_text')
-            $.ajax({
-                url: "{{ route('articles.invoices.get.items') }}",
-                method: 'GET',
-                success: function(response) {
-                    console.log("Items fetched successfully : ", response.articles);
-                    var items = response.articles;
-                    document.querySelector("#items-table tbody").innerHTML = "";
+            var moduleApp = document.querySelector('#_moduleApp').value;
+            var preInvoice = document.querySelector('#_preInvoice').value;
+            preInvoice = JSON.parse(preInvoice);
 
-                    var service = document.querySelector("#_service");
-                    var price = document.querySelector("#_price");
-                    var quantity = document.querySelector("#_quantity");
-                    var priceText = document.querySelector('#_price_text');
-                    var tableBody = document.querySelector("#items-table tbody");
+            if (moduleApp === 'LCV') {
+                $.ajax({
+                    url: "{{ route('articles.invoices.get.items') }}",
+                    method: 'GET',
+                    success: function(response) {
+                        var items = response.articles;
+                        document.querySelector("#items-table tbody").innerHTML = "";
 
-                    var invoicePrice = 0;
-                    var tr = "";
-                    items.forEach((item, index) => {
-                        tr += `<tr>`;
-                        tr += `<td>${item.article.name}</td>`;
-                        tr += `<td>${"$" + item.article.unit_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
-                        tr += `<td>${item.quantity}</td>`;
-                        tr += `<td>${"$" + (parseInt(item.quantity) * parseInt(item.article.unit_price)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
-                        tr += `<td>
-                                    <button type="button" class="btn btn-light mt-1 remove-wishlist waves-effect waves-float waves-light" onclick="removeItem(${index})">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x align-middle mr-25"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                    </button>
-                                </td>`;
-                        invoicePrice += parseInt(item.quantity) * parseInt(item.article.unit_price);
-                    });
+                        var service = document.querySelector("#_service");
+                        var price = document.querySelector("#_price");
+                        var quantity = document.querySelector("#_quantity");
+                        var priceText = document.querySelector('#_price_text');
+                        var tableBody = document.querySelector("#items-table tbody");
 
-                    tableBody.innerHTML = tr;
-                    invoicePriceText.innerHTML = "$" + invoicePrice.toFixed(2);
-                    service.value = "";
-                    price.value = "";
-                    quantity.value = 0;
-                    priceText.innerHTML = "$" + parseInt(0).toFixed(2);
-                    invoicePriceText.innerHTML = "$" + (invoicePrice).toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    });
-                    addItemToStorage(items);
-                    activeSaveBtn();
-                }
-            });
+                        var invoicePrice = 0;
+                        var tr = "";
+                        items.forEach((item, index) => {
+                            tr += `<tr>`;
+                            tr += `<td>${item.article.name}</td>`;
+                            tr += `<td>${"$" + item.article.unit_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                            tr += `<td>${item.quantity}</td>`;
+                            tr += `<td>${"$" + (parseInt(item.quantity) * parseInt(item.article.unit_price)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                            tr += `<td>
+                                        <button type="button" class="btn btn-light mt-1 remove-wishlist waves-effect waves-float waves-light" onclick="removeItem(${index})">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x align-middle mr-25"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                        </button>
+                                    </td>`;
+                            invoicePrice += parseInt(item.quantity) * parseInt(item.article.unit_price);
+                        });
+
+                        tableBody.innerHTML = tr;
+                        invoicePriceText.innerHTML = "$" + invoicePrice.toFixed(2);
+                        service.value = "";
+                        price.value = "";
+                        quantity.value = 0;
+                        priceText.innerHTML = "$" + parseInt(0).toFixed(2);
+                        invoicePriceText.innerHTML = "$" + (invoicePrice).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        });
+                        addItemToStorage(items);
+                        activeSaveBtn();
+                    }
+                });
+            } else {
+                var service = document.querySelector("#_service");
+                var price = document.querySelector("#_price");
+                var quantity = document.querySelector("#_quantity");
+                var priceText = document.querySelector('#_price_text');
+                var tableBody = document.querySelector("#items-table tbody");
+
+                var invoicePrice = 0;
+                var tr = "";
+
+                $.ajax({
+                    url: "{{ route('modules.invoices.get.items') }}",
+                    method: 'GET',
+                    success: function(response) {
+                        var items = response.modules;
+                        document.querySelector("#items-table tbody").innerHTML = "";
+
+                        var module = document.querySelector("#_module");
+
+                        var invoicePrice = 0;
+                        var tr = "";
+                        items.forEach((item, index) => {
+                            tr += `<tr>`;
+                            tr += `<td>${item.module.name}</td>`;
+                            tr += `<td>${item.serviceDetails}</td>`;
+                            tr += `<td>${item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                            tr += `<td>
+                                        <button type="button" class="btn btn-light mt-0 remove-wishlist waves-effect waves-float waves-light" onclick="removeModuleItem(${index})">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x align-middle mr-25"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                        </button>
+                                    </td>`;
+                            invoicePrice += parseInt(item.price);
+                        });
+                    }
+                });
+
+                // tr += `<tr>`;
+                // tr += `<td>${preInvoice.module.name}</td>`;
+                // tr += `<td>${preInvoice.module.name}</td>`;
+                // tr += `<td>${"$" + preInvoice.total_ht.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>`;
+                // tr += `<td>
+                //             <button type="button" class="btn btn-light mt-1 remove-wishlist waves-effect waves-float waves-light" onclick="">
+                //                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x align-middle mr-25"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                //             </button>
+                //         </td>`;
+
+                tableBody.innerHTML = tr;
+                // invoicePriceText.innerHTML = "$" + invoicePrice.toFixed(2);
+                invoicePriceText.innerHTML = "$" + (preInvoice.total_ht).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+                // addItemToStorage(items);
+                activeSaveBtn();
+            }
         }
 
         function removeItem(index) {
             console.log("index : ", index);
-            
+
             $.ajax({
                 url: "{{ route('articles.invoices.remove.item') }}",
                 method: 'POST',
@@ -455,6 +578,23 @@
             } else {
                 saveBtn.disabled = true;
             }
+        }
+        function setModulePrice() {
+            var modulePriceText = document.querySelector('#_module_price_text');
+            var modulePrice = document.querySelector('#_module_price');
+
+            var price = parseFloat(modulePrice.value);
+
+            if (isNaN(price)) {
+                price = 0;
+            } else {
+                price = parseFloat(modulePrice.value).toFixed(2);
+            }
+
+            modulePriceText.innerHTML = "$" + price.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })
         }
     </script>
 </x-main>

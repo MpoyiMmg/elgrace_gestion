@@ -139,14 +139,23 @@
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
+                                @if($preInvoice->module->code === 'LCV')
                                 <tr>
                                     <th class="py-1">Description service</th>
                                     <th class="py-1">Prix unitaire</th>
                                     <th class="py-1">Quantité</th>
                                     <th class="py-1">Total</th>
                                 </tr>
+                                @else
+                                <tr>
+                                    <th class="py-1">Module</th>
+                                    <th class="py-1">Intitulé du service</th>
+                                    <th class="py-1">Total</th>
+                                </tr>
+                                @endif
                             </thead>
                             <tbody>
+                                @if($preInvoice->module->code === 'LCV')
                                 @if($details)
                                 @foreach($details as $detail)
                                 <tr>
@@ -168,6 +177,23 @@
                                 </tr>
                                 @endforeach
                                 @endif
+                                @else
+                                @if($details)
+                                @foreach($details as $detail)
+                                <tr>
+                                    <td class="py-1">
+                                        <p class="card-text font-weight-bold mb-25">{{ $preInvoice->module->name }}</p>
+                                    </td>
+                                    <td class="py-1">
+                                        <p class="card-text font-weight-bold mb-25">{{ $detail->module_invoice_details }}</p>
+                                    </td>
+                                    <td class="py-1">
+                                        <span class="font-weight-bold">${{ number_format($preInvoice->total_ht, 2, '.', ',') }}</span>
+                                    </td>
+                                </tr>
+                                @endforeach
+                                @endif
+                                @endif
                             </tbody>
                         </table>
                     </div>
@@ -181,22 +207,28 @@
                             </div>
                             <div class="col-md-6 d-flex justify-content-end order-md-2 order-1">
                                 <div class="invoice-total-wrapper">
-                                    <!-- <div class="invoice-total-item">
-                                        <p class="invoice-total-title">Subtotal:</p>
-                                        <p class="invoice-total-amount">$1800</p>
+                                    <div class="invoice-total-item">
+                                        <p class="invoice-total-title font-weight-bold">Total HT:</p>
+                                        <p class="invoice-total-amount">${{ number_format($preInvoice->total_ht, 2, '.', ',') }}</p>
                                     </div>
                                     <div class="invoice-total-item">
-                                        <p class="invoice-total-title">Discount:</p>
-                                        <p class="invoice-total-amount">$28</p>
+                                        <p class="invoice-total-title font-weight-bold">TVA (16%):</p>
+                                        <p class="invoice-total-amount">${{ number_format($preInvoice->tva, 2, '.', ',') }}</p>
                                     </div>
+                                    @if ($preInvoice->reduction_rate > 0)
                                     <div class="invoice-total-item">
-                                        <p class="invoice-total-title">Tax:</p>
-                                        <p class="invoice-total-amount">21%</p>
-                                    </div> -->
+                                        <p class="invoice-total-title font-weight-bold">Réd. ({{ $preInvoice->reduction_rate }}%):</p>
+                                        <p class="invoice-total-amount">${{ number_format($preInvoice->reduction_ht, 2, '.', ',') }}</p>
+                                    </div>
+                                    @endif
                                     <hr class="my-50" />
                                     <div class="invoice-total-item">
-                                        <p class="invoice-total-title">Total:</p>
+                                        <p class="invoice-total-title">Total TTC:</p>
+                                        @if ($preInvoice->module === 'LCV')
                                         <p class="invoice-total-amount">${{ number_format($totalPrice, 2, '.', ',') }}</p>
+                                        @else
+                                        <p class="invoice-total-amount">${{ number_format($preInvoice->total_ttc, 2, '.', ',') }}</p>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -307,9 +339,62 @@
                         </button> -->
                     </div>
                 </div>
+
+                @if ($preInvoice->status === 'rejected' || $preInvoice->status === 'draft')
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Commentaires</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="comments_container">
+                            @if ($comments->count() > 0)
+                            @foreach ($comments as $comment)
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="media">
+                                        <div class="media-body">
+                                            <!-- <h5 class="mt-0 mb-1"><strong>{{ $comment->content }}</strong></h5> -->
+                                            <p>{{ $comment->content }}</p>
+                                            <p class="text-muted">{{ $comment->created_at->format('d/m/Y H:i') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            @endforeach
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
-            <!-- /Invoice Actions -->
+            @endif
         </div>
+        </div>
+        <!-- /Invoice Actions -->
+        </div>
+        <!-- modal -->
+        <div class="modal fade text-left" id="comment_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel1">Ajouter un commentaire</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="exampleFormControlTextarea1">Donner une explication sur la rejection</label>
+                            <textarea class="form-control" id="_content" rows="2" placeholder="Textarea"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="_send_comment_btn" onclick="addComment()">Confirmer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- modal -->
     </section>
     <script>
         var alert = document.querySelector("#_alert_el");
@@ -325,7 +410,10 @@
         let convertBtn = document.querySelector("#_convert_btn");
 
         let loadingBtn = document.querySelector("#_loading_btn");
-        loadingBtn.style.display = 'none';
+
+        if (loadingBtn !== null) {
+            loadingBtn.style.display = 'none';
+        }
 
         function valdateInvoice() {
             loadingBtn.style.display = 'block';
@@ -399,43 +487,8 @@
         }
 
         function rejectInvoice() {
-            loadingBtn.style.display = 'block';
-            validatedBtn.style.display = 'none';
-            rejectBtn.style.display = 'none';
-            var alertMsg = document.querySelector("#_alert_msg");
-            var errorAlertMsg = document.querySelector("#_error_alert_msg");
-
-            $.ajax({
-                url: `{{ route('articles.invoices.reject', ':id') }}`.replace(':id', invoiceId),
-                type: 'POST',
-                data: {
-                    _token: "{{ csrf_token() }}"
-                },
-                success: function(response) {
-                    if (response) {
-                        errorAlert.style.display = 'block';
-                        errorAlertMsg.innerHTML = "La facture a été rejetée!";
-
-                        setTimeout(function() {
-                            errorAlert.style.display = 'none';
-                            validationBtn.style.display = 'block';
-                            rejectBtn.style.display = 'block';
-                            loadingBtn.style.display = 'none';
-                        }, 5000);
-
-                        window.location.reload();
-                    }
-                },
-                error: function(error) {
-                    errorAlert.style.display = 'block';
-                    errorAlertMsg.innerHTML = "Erreur lors de la validation de la facture";
-
-                    setTimeout(function() {
-                        errorAlert.style.display = 'none';
-                    }, 5000);
-                    console.log("Validation error : ", error);
-                }
-            })
+            $('#comment_modal').modal('show');
+            // console.log("modal : ", $('#comment_modal'));
         }
 
         function convertToInvoice() {
@@ -477,6 +530,50 @@
                     // console.log("Validation error : ", error.status);
                 }
             })
+        }
+
+        function addComment() {
+            let comment = document.querySelector('#_content').value;
+            loadingBtn.style.display = 'block';
+            validatedBtn.style.display = 'none';
+            rejectBtn.style.display = 'none';
+            var alertMsg = document.querySelector("#_alert_msg");
+            var errorAlertMsg = document.querySelector("#_error_alert_msg");
+
+            $.ajax({
+                url: `{{ route('articles.invoices.reject', ':id') }}`.replace(':id', invoiceId),
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    comment: comment
+                },
+                success: function(response) {
+                    if (response) {
+                        errorAlert.style.display = 'block';
+                        errorAlertMsg.innerHTML = "La facture a été rejetée!";
+
+                        setTimeout(function() {
+                            errorAlert.style.display = 'none';
+                            validationBtn.style.display = 'block';
+                            rejectBtn.style.display = 'block';
+                            loadingBtn.style.display = 'none';
+                        }, 5000);
+
+                        comment.value = "";
+                        window.location.reload();
+                    }
+                },
+                error: function(error) {
+                    errorAlert.style.display = 'block';
+                    errorAlertMsg.innerHTML = "Erreur lors de la validation de la facture";
+
+                    setTimeout(function() {
+                        errorAlert.style.display = 'none';
+                    }, 5000);
+                    console.log("Validation error : ", error);
+                }
+            })
+            // console.log("content : ", content.value);
         }
     </script>
 </x-main>

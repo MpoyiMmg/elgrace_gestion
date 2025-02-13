@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Article;
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\PreInvoice;
-use App\Models\PreInvoiceDetail;
-use App\Models\Service;
 use Carbon\Carbon;
+use App\Models\Client;
+use App\Models\Module;
+use App\Models\Article;
+use App\Models\Comment;
+use App\Models\Invoice;
+use App\Models\Service;
+use App\Models\PreInvoice;
 use Illuminate\Http\Request;
+use App\Models\PreInvoiceDetail;
 use Illuminate\Support\Facades\Auth;
 
 class PreInvoiceController extends Controller
@@ -22,7 +24,7 @@ class PreInvoiceController extends Controller
         $preInvoices = PreInvoice::whereHas('itemDetails', function ($query) { 
             $query->whereNull('article_id'); 
         })->get();
-
+        
         return view('pages.invoice.service.index', [
             'preInvoices' => $preInvoices
         ]);
@@ -203,7 +205,7 @@ class PreInvoiceController extends Controller
     public function listArticleInvoices()
     {
         $user = Auth::user();
-
+        $modules = Module::all();
         if ($user->hasRole('cashier')) {
            $preInvoices = PreInvoice::all();
         } else {
@@ -211,8 +213,10 @@ class PreInvoiceController extends Controller
                 return $item->status !== 'draft';
             });
         }
+
         return view('pages.invoice.article.index', [
-            'preInvoices' => $preInvoices
+            'preInvoices' => $preInvoices,
+            'modules' => $modules
         ]);
     }
 
@@ -222,10 +226,12 @@ class PreInvoiceController extends Controller
         $clients = Client::all();
         $services = Service::all();
         $articles = Article::all();
+        $modules = Module::all();
         return view('pages.invoice.article.create', [
             'clients' => $clients,
             'services' => $services,
-            'articles' => $articles
+            'articles' => $articles,
+            'modules' => $modules,
         ]);
     }
 
@@ -252,6 +258,28 @@ class PreInvoiceController extends Controller
         return response()->json(['message' => $message]);
     }
 
+    public function addModuleItem(Request $request)
+    {
+        $items = session('modules', []);
+        // Add item to session
+        $newItem = $request->all();
+        // check if there'is already item in session
+        $itemExistsIndex = collect($items)->search(function ($item) use ($newItem) {
+            return $item['serviceDetails'] === $newItem['serviceDetails'];
+        });
+
+        if ($itemExistsIndex !== false) {
+            $items[$itemExistsIndex] = $newItem;
+            $message = 'Élément modifié';
+        } else {
+            $items[] = $newItem;
+            $message = 'Élément ajouté';
+        }
+
+        session(['modules' => $items]);
+        return response()->json(['message' => $message]);
+    }
+
     public function removeArticleItem(Request $request)
     {
         $articles = session('articles', []);
@@ -267,11 +295,25 @@ class PreInvoiceController extends Controller
         return response()->json(['message' => 'Article not found'], 404);
     }
 
+    public function removeModuleItem(Request $request) {
+        $modules = session('modules', []);
+
+        $index = $request->index;
+
+        if (isset($modules[$index])) {
+            unset($modules[$index]);
+            session(['modules' => array_values($modules)]);
+            return response()->json(['message' => 'Module deleted successfully']);
+        }
+
+        return response()->json(['message' => 'Module not found'], 404);
+    }
+
     public function storeArticleInvoice(Request $request)
     {
         $items = session('articles');
-
         $totalAmount = 0;
+
         foreach ($items as $item) {
             $totalAmount += $item['quantity'] * $item['article']['unit_price'];
         }
@@ -281,6 +323,7 @@ class PreInvoiceController extends Controller
             'reference' => $request->reference,
             'issue_date' => $request->issue_date,
             'expiry_date' => $request->expiry_date,
+            'module_id' => $request->module_id,
             'status' => 'draft',
             'total_amount' => $totalAmount,
         ]);
@@ -310,13 +353,58 @@ class PreInvoiceController extends Controller
         return response()->json(['message' => "Invoice created successfully"]);
     }
 
+    public function storeModuleInvoice(Request $request)
+    {
+        $items = session('modules');
+
+        $totalAmount = 0;
+        foreach ($items as $item) {
+            $totalAmount += $item['price'];
+        }
+
+        $preInvoice = PreInvoice::create([
+            'client_id' => $request->client_id,
+            'reference' => $request->reference,
+            'issue_date' => $request->issue_date,
+            'expiry_date' => $request->expiry_date,
+            'module_id' => $request->items[0]['module']['id'],
+            'status' => 'draft',
+            'total_amount' => $totalAmount,
+        ]);
+
+        $totalHt = 0;
+        // saving details
+        foreach ($items as $item) {
+            $totalHt += $item['price'];
+            $preInvoice->itemDetails()->create([
+                'module_invoice_details' => $item['serviceDetails'],
+                'quantity' => 1,
+                'total_amount' => $item['price'],
+            ]);
+        }
+        $totalHt += $item['price'];
+
+        $tva = $totalHt * 16 / 100; 
+        $totalTTC = $totalHt + $tva;
+
+        $preInvoice->update([
+            'total_ht' => $totalHt,
+            'total_ttc' => $totalTTC,
+            'tva' => $tva,
+        ]);
+
+        session(['modules' => []]);
+        return response()->json(['message' => "Invoice created successfully"]);
+    }
+
     public function showArticleInvoice(Request $request) {
         $preInvoice = PreInvoice::find($request->invoice);
-
+        $comments = $preInvoice->comments()->orderBy('created_at', 'DESC')->take(5)->get();
         return view('pages.invoice.article.details', [
             'preInvoice' => $preInvoice,
             'details' => $preInvoice->itemDetails,
-            'totalPrice' => $preInvoice->calculateTotalItemPrice()
+            'totalPrice' => $preInvoice->calculateTotalItemPrice(),
+            'comments' => $comments
         ]);
     }
 
@@ -339,6 +427,7 @@ class PreInvoiceController extends Controller
         $clients = Client::all();
         $services = Service::all();
         $articles = Article::all();
+        $modules =Module::all();
         $items = $preInvoice->itemDetails->map(function ($item) {
             return [
                 'service' => $item->service?->id,
@@ -354,7 +443,8 @@ class PreInvoiceController extends Controller
             'clients' => $clients,
             'services' => $services,
             'articles' => $articles,
-            'details' => $preInvoice->itemDetails
+            'details' => $preInvoice->itemDetails,
+            'modules' => $modules
         ]);
     }
 
@@ -422,6 +512,11 @@ class PreInvoiceController extends Controller
            'rejected_by' => $user->id
         ]);
 
+        Comment::create([
+            'pre_invoice_id' => $preInvoice->id,
+            'content' => $request->comment
+        ]);
+
         return response()->json(['message' => "Invoice rejected successfully"]);
     }
 
@@ -454,6 +549,10 @@ class PreInvoiceController extends Controller
 
     public function getArticleItems() {
         return response()->json(['articles' => session('articles')]);
+    }
+
+    public function getModuleItems() {
+        return response()->json(['modules' => session('modules')]);
     }
     /**
      * Remove the specified resource from storage.

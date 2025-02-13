@@ -15,41 +15,99 @@
     <div class="shadow-bottom"></div>
     <div class="main-menu-content">
         <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
-            <li class="active nav-item"><a class="d-flex align-items-center" href="{{ route('dashboard') }}"><i
-                        data-feather="home"></i><span class="menu-title text-truncate" data-i18n="Home">Tableau de board</span></a>
+            @if ($menus)
+            @foreach ($menus as $menu)
+            @if (isset($menu->url) && !isset($menu->group))
+            <li class="{{ $menu->is_active ? 'active' : ''}} nav-item"><a class="d-flex align-items-center" href="{{ route($menu->url) }}"><i
+                        data-feather="{{ $menu->icon }}"></i><span class="menu-title text-truncate" data-i18n="Home">{{ $menu->title }}</span></a>
             </li>
+            @endif
+            @endforeach
+            @endif
+
             <li class=" navigation-header"><span data-i18n="Apps &amp; Pages">Opérations</span><i data-feather="more-horizontal"></i></li>
-            <li class=" nav-item"><a class="d-flex align-items-center" href="#"><i data-feather="file-text"></i><span
-                        class="menu-title text-truncate" data-i18n="Page Layouts">Facture proformats</span></a>
+            @if ($menus)
+            @foreach ($menus as $menu)
+            @if (isset($menu->group) && $menu->group === 'operations')
+            @if (!isset($menu->url))
+            <li class="nav-item"><a class="d-flex align-items-center" href="#"><i data-feather="{{ $menu->icon }}"></i><span
+                        class="menu-title text-truncate" data-i18n="Page Layouts">{{ $menu->title }}</span></a>
                 <ul class="menu-content">
-                    <li><a class="d-flex align-items-center" href="{{ route('services.invoices.index') }}"><i
-                                data-feather="circle"></i><span class="menu-item" data-i18n="Collapsed Menu">Services</span></a>
+                    @if($menu->submenu)
+                    @foreach ($menu->submenu as $submenu)
+                    <li class="{{ $submenu->is_active ? 'active' : ''}}">
+                        <a class="d-flex align-items-center" href="{{ route($submenu->url) }}">
+                            <i data-feather="circle"></i><span class="menu-item" data-i18n="Collapsed Menu">{{ $submenu->title }}</span>
+                        </a>
                     </li>
-                    <li><a class="d-flex align-items-center" href="{{ route('articles.invoices.index') }}"><i data-feather="circle"></i><span
-                                class="menu-item" data-i18n="Layout Boxed">Articles</span></a>
-                    </li>
+                    @endforeach
+                    @endif
                 </ul>
             </li>
-            <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('final-invoices.index') }}">
-                    <i data-feather="file-text"></i><span class="menu-title text-truncate" data-i18n="Email">Factures finales</span></a>
+            @else
+            <li class="{{ $menu->is_active ? 'active' : ''}} nav-item"><a class="d-flex align-items-center" href="{{ route($menu->url) }}"><i
+                        data-feather="{{ $menu->icon }}"></i><span class="menu-title text-truncate" data-i18n="Home">{{ $menu->title }}</span></a>
             </li>
-            @role (['admin', 'manager'])
+            @endif
+            @endif
+            @endforeach
+            @endif
+            @role(['admin', 'manager'])
             <li class=" navigation-header"><span data-i18n="Apps &amp; Pages">Apps</span><i data-feather="more-horizontal"></i></li>
-            <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('articles.index') }}">
-                    <i data-feather="box"></i><span class="menu-title text-truncate" data-i18n="Email">Articles</span></a>
-            </li>
-            <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('services.index') }}">
-                    <i data-feather="gift"></i><span class="menu-title text-truncate" data-i18n="Email">Services</span></a>
-            </li>
-
-            <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('clients.index') }}">
-                    <i data-feather="users"></i><span class="menu-title text-truncate" data-i18n="Email">Clients</span></a>
-            </li>
-            <li class=" navigation-header"><span data-i18n="Apps &amp; Pages">Configs</span><i data-feather="more-horizontal"></i></li>
-            <li class=" nav-item"><a class="d-flex align-items-center" href="{{ route('clients.index') }}">
-                    <i data-feather="users"></i><span class="menu-title text-truncate" data-i18n="Email">Utilisateurs</span></a>
-            </li>
             @endrole
+            @if ($menus)
+                @foreach ($menus as $menu)
+                    @if (isset($menu->roles))
+                        @role ($menu->roles)
+                            @if (isset($menu->group) && $menu->group === 'apps')
+                                @if (!isset($menu->url))
+                                    <li class="nav-item"><a class="d-flex align-items-center" href="#"><i data-feather="{{ $menu->icon }}"></i><span
+                                                class="menu-title text-truncate" data-i18n="Page Layouts">{{ $menu->title }}</span></a>
+                                        <ul class="menu-content">
+                                            @if($menu->submenu)
+                                            @foreach ($menu->submenu as $submenu)
+                                            <li class="{{ $submenu->is_active ? 'active' : ''}}">
+                                                <a class="d-flex align-items-center" href="{{ route($submenu->url) }}">
+                                                    <i data-feather="circle"></i><span class="menu-item" data-i18n="Collapsed Menu">{{ $submenu->title }}</span>
+                                                </a>
+                                            </li>
+                                            @endforeach
+                                            @endif
+                                        </ul>
+                                    </li>
+                                @else
+                                    <li class="{{ $menu->is_active ? 'active' : ''}} nav-item"><a class="d-flex align-items-center" href="{{ route($menu->url) }}"><i
+                                                data-feather="{{ $menu->icon }}"></i><span class="menu-title text-truncate" data-i18n="Home">{{ $menu->title }}</span></a>
+                                    </li>
+                                @endif
+                             @endif
+                         @endrole
+                    @else
+                        @if (isset($menu->group) && $menu->group === 'apps')
+                             @if (!isset($menu->url))
+                                <li class="nav-item"><a class="d-flex align-items-center" href="#"><i data-feather="{{ $menu->icon }}"></i><span
+                                            class="menu-title text-truncate" data-i18n="Page Layouts">{{ $menu->title }}</span></a>
+                                    <ul class="menu-content">
+                                        @if($menu->submenu)
+                                        @foreach ($menu->submenu as $submenu)
+                                        <li class="{{ $submenu->is_active ? 'active' : ''}}">
+                                            <a class="d-flex align-items-center" href="{{ route($submenu->url) }}">
+                                                <i data-feather="circle"></i><span class="menu-item" data-i18n="Collapsed Menu">{{ $submenu->title }}</span>
+                                            </a>
+                                        </li>
+                                        @endforeach
+                                        @endif
+                                    </ul>
+                                </li>
+                            @else
+                                <li class="{{ $menu->is_active ? 'active' : ''}} nav-item"><a class="d-flex align-items-center" href="{{ route($menu->url) }}"><i
+                                            data-feather="{{ $menu->icon }}"></i><span class="menu-title text-truncate" data-i18n="Home">{{ $menu->title }}</span></a>
+                                </li>
+                            @endif
+                        @endif
+                    @endif
+                @endforeach
+            @endif
         </ul>
     </div>
 </div>

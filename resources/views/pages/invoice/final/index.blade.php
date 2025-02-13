@@ -2,11 +2,6 @@
     <section class="invoice-list-wrapper">
         <div class="card">
             <div class="card-header">
-                @role ('cashier')
-                <a href="{{ route('articles.invoices.create') }}" class="btn btn-primary">
-                    Créer une facture
-                </a>
-                @endrole
             </div>
             <div class="card-datatable table-responsive">
                 @if (count($invoices))
@@ -84,9 +79,9 @@
                             </td>
                             <td>
                                 <i data-feather="user"></i>
-                                {{ $invoice->preInvoice->client['name'] }}
+                                {{ $invoice?->preInvoice?->client['name'] }}
                             </td>
-                            <td>${{ number_format($invoice->preInvoice->total_ttc, 2, '.', ',') }}</td>
+                            <td>${{ number_format($invoice->preInvoice?->total_ttc, 2, '.', ',') }}</td>
                             <td>
                                 @if ($invoice->status === 'unpaid')
                                     <div class="badge badge-warning">En attente de paiement</div>

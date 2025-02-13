@@ -4,6 +4,7 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PreInvoiceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
@@ -49,6 +50,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/clients/store', 'store')->name('clients.store');
     });
 
+    Route::controller(ModuleController::class)->group(function() {
+        Route::get('/modules', 'index')->name('modules.index');
+    });
+
     Route::controller(PreInvoiceController::class)->group(function() {
         Route::get('/services-invoices', 'index')->name('services.invoices.index');
         Route::get('/services-invoices/create', 'create')->name('services.invoices.create');
@@ -70,6 +75,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/articles-invoices/{invoice}/print', 'printArticleInvoice')->name('articles.invoices.print');
         Route::get('/articles-invoices/{invoice}/edit', 'editArticleInvoice')->name('articles.invoices.edit');
         Route::post('articles-invoices/{invoice}/update', 'updateArticleInvoice')->name('articles.invoices.update');
+
+        Route::post('/module-invoices/add-item', 'addModuleItem')->name('invoices.add.module.item');
+        Route::get('/modules-invoices/get-items', 'getModuleItems')->name('modules.invoices.get.items');
+        Route::post('/modules-invoices/remove-item', 'removeModuleItem')->name('modules.invoices.remove.item');
+        Route::post('/modules-invoices/store', 'storeModuleInvoice')->name('modules.invoices.store');
 
         Route::post('articles-invoices/{invoice}/validate', 'validateArticleInvoice')->name('articles.invoices.validate');
         Route::post('articles-invoices/{invoice}/reject', 'rejectArticleInvoice')->name('articles.invoices.reject');

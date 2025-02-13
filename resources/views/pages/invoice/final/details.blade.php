@@ -192,7 +192,7 @@
                                     @if ($invoice->preInvoice->reduction_rate > 0)
                                     <div class="invoice-total-item">
                                         <p class="invoice-total-title font-weight-bold">Réd. ({{ $invoice->preInvoice->reduction_rate }}%):</p>
-                                        <p class="invoice-total-amount">${{ number_format($invoice->reduction_ht, 2, '.', ',') }}</p>
+                                        <p class="invoice-total-amount">${{ number_format($invoice->preInvoice->reduction_ht, 2, '.', ',') }}</p>
                                     </div>
                                     @endif
                                     <hr class="my-50" />
@@ -310,16 +310,16 @@
                             <tbody>
                                 <tr>
                                     <td class="pr-1">Montant payé:</td>
-                                    <td><strong>${{ $invoice->paid_amount}}</strong></td>
+                                    <td><strong>${{ number_format($invoice->paid_amount, 2, '.', ',') }}</strong></td>
                                 </tr>
                                 @if ($invoice->remaining_amount > 0)
                                 <tr class="mt-2">
                                     <td class="pr-1">Montant restant:</td>
-                                    <td><strong>${{ $invoice->remaining_amount }}</strong></td>
+                                    <td><strong>${{ number_format($invoice->remaining_amount, 2, '.', ',') }}</strong></td>
                                 </tr>
                                 @endif
-                                <tr class="mt-2">
-                                    <td class="pr-1">Date du dernier paiement:</td>
+                                <tr class="mt-4">
+                                    <td class="pr-1">Date du paiement:</td>
                                     <td><strong>{{ date('d/m/Y', strtotime($invoice->payment_date)) }}</strong></td>
                                 </tr>
                                 <tr class="mt-2">

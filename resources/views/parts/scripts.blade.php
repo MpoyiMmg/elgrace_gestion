@@ -1,6 +1,7 @@
 @php 
     $route = request()->route()->getName();
 @endphp
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- BEGIN: Vendor JS-->
 <script src="{{ asset('app-assets/vendors/js/vendors.min.js') }}"></script>
 <!-- BEGIN Vendor JS-->
