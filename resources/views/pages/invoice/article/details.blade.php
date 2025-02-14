@@ -458,30 +458,28 @@
             });
         }
 
-        function sendForValidation() {
+function sendForValidation() {
+    
     validationBtn.style.display = 'none';
     loadingBtn.style.display = 'block';
     var alertMsg = document.querySelector("#_alert_msg");
     var errorAlertMsg = document.querySelector("#_error_alert_msg");
 
-    // Collecter les IDs des factures sélectionnées
     var selectedInvoices = [];
     document.querySelectorAll('.invoice-list-checkbox:checked').forEach(function (checkbox) {
-        selectedInvoices.push(checkbox.value); // Ajouter l'ID de chaque facture sélectionnée
+        selectedInvoices.push(checkbox.value); 
     });
 
-    // Si aucune facture n'est sélectionnée, prendre l'ID de la facture courante
     if (selectedInvoices.length === 0) {
-        selectedInvoices.push(invoiceId); // ID unique de la facture en cours
+        selectedInvoices.push(invoiceId); 
     }
 
-    // Effectuer la requête AJAX avec un seul ID ou un tableau d'IDs
     $.ajax({
         url: `{{ route('articles.invoices.sendForValidation', ':id') }}`.replace(':id', selectedInvoices.join(',')), // Passer l'ID ou les IDs en tant que liste
         type: 'POST',
         data: {
             _token: "{{ csrf_token() }}",
-            invoices: selectedInvoices // Passer l'ID ou les IDs des factures sélectionnées
+            invoices: selectedInvoices 
         },
         success: function(response) {
             if (response.success) {

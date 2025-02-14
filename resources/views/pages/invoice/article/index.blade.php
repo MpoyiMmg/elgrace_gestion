@@ -14,7 +14,7 @@
                 </div>
                 <div class="d-flex justify-content-end align-items-center mb-2">
                     @role('cashier')
-                    <button type="button" class="btn btn-success mr-2" id="sendForValidationBtn" disabled>
+                    <button type="button" class="btn btn-success mr-2" id="sendForValidationBtn" style="display: none;">
                         <span id="btnText">Envoyer pour validation</span>
                         <span id="loader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
                     </button>
@@ -140,103 +140,105 @@
         </div>
 
         <script>
-    document.addEventListener('DOMContentLoaded', function () {
-    var selectAllCheckbox = document.getElementById('selectAllInvoices');
-    var checkboxes = document.querySelectorAll('.invoice-list-checkbox');
-    var sendButton = document.getElementById('sendForValidationBtn');
+            document.addEventListener('DOMContentLoaded', function () {
+                var selectAllCheckbox = document.getElementById('selectAllInvoices');
+                var checkboxes = document.querySelectorAll('.invoice-list-checkbox');
+                var sendButton = document.getElementById('sendForValidationBtn');
 
-    function checkIfAnyValidInvoiceSelected() {
-        var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
-        var isValid = false;
+                function checkIfAnyValidInvoiceSelected() {
+                    var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
+                    var isValid = false;
 
-        selectedInvoices.forEach(checkbox => {
-            var row = checkbox.closest('tr'); 
-            var status = row.querySelector('.badge').innerText.trim(); 
+                    selectedInvoices.forEach(checkbox => {
+                        var row = checkbox.closest('tr'); 
+                        var status = row.querySelector('.badge').innerText.trim(); 
 
-            if (status !== 'Proformat convertie en facture' && status !== 'Facture prête à être envoyée') {
-                isValid = true; 
-            }
-        });
-
-        sendButton.disabled = !isValid;
-    }
-
-    selectAllCheckbox.addEventListener('change', function () {
-        checkboxes.forEach(checkbox => {
-            var row = checkbox.closest('tr');
-            var status = row.querySelector('.badge').innerText.trim();
-
-            if (status !== 'Proformat convertie en facture' && status !== 'Facture prête à être envoyée') {
-                checkbox.checked = selectAllCheckbox.checked;
-            } else {
-                checkbox.checked = false; 
-            }
-        });
-        checkIfAnyValidInvoiceSelected();
-    });
-
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', checkIfAnyValidInvoiceSelected);
-    });
-
-    sendButton.addEventListener('click', function () {
-        var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
-        var invoiceIds = [];
-
-        selectedInvoices.forEach(checkbox => {
-            invoiceIds.push(checkbox.value);
-        });
-
-        if (invoiceIds.length > 0) {
-            sendForValidation(invoiceIds);
-        } else {
-            alert('Veuillez sélectionner au moins une facture valide.');
-        }
-    });
-
-    function sendForValidation(invoiceIds) {
-        var alert = document.querySelector("#alert");  
-        var alertMsg = document.querySelector("#_alert_msg");
-        var loader = document.getElementById('loader');
-        var btnText = document.getElementById('btnText');
-
-        sendButton.disabled = true;
-        loader.style.display = 'inline-block';
-        btnText.style.display = 'none';
-
-        $.ajax({
-            url: `{{ route('articles.invoices.sendForValidation',':id') }}`,
-            type: 'POST',
-            data: {
-                _token: "{{ csrf_token() }}",
-                invoices: invoiceIds
-            },
-            success: function(response) {
-                if (response.success) {
-                    alertMsg.innerHTML = "Les factures ont été envoyées pour validation avec succès!";
-                    alert.style.display = 'block'; 
-
-                    setTimeout(function() {
-                        alert.style.display = 'none';  
-                        window.location.reload(); 
-                    }, 5000);
-                } else {
-                    alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
+                        if (status !== 'Proformat convertie en facture' && status !== 'Facture prête à être envoyée' && status !== 'En attente de validation') {
+                            isValid = true; 
+                        }
+                    });
+                    if (selectedInvoices.length > 0 && isValid) {
+                        sendButton.style.display = 'inline-block';
+                    } else {
+                        sendButton.style.display = 'none'; 
+                    }
                 }
-            },
-            error: function() {
-                alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
-            },
-            complete: function() {
-                checkboxes.forEach(checkbox => checkbox.checked = false);
-                sendButton.disabled = true;
-                loader.style.display = 'none';
-                btnText.style.display = 'inline-block';
-            }
-        });
-    }
-});
 
+                selectAllCheckbox.addEventListener('change', function () {
+                    checkboxes.forEach(checkbox => {
+                        var row = checkbox.closest('tr');
+                        var status = row.querySelector('.badge').innerText.trim();
+
+                        if (status !== 'Proformat convertie en facture' && status !== 'Facture prête à être envoyée' ) {
+                            checkbox.checked = selectAllCheckbox.checked;
+                        } else {
+                            checkbox.checked = false; 
+                        }
+                    });
+                    checkIfAnyValidInvoiceSelected();
+                });
+
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', checkIfAnyValidInvoiceSelected);
+                });
+
+                sendButton.addEventListener('click', function () {
+                    var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
+                    var invoiceIds = [];
+
+                    selectedInvoices.forEach(checkbox => {
+                        invoiceIds.push(checkbox.value);
+                    });
+
+                    if (invoiceIds.length > 0) {
+                        sendForValidation(invoiceIds);
+                    } else {
+                        alert('Veuillez sélectionner au moins une facture valide.');
+                    }
+                });
+
+                function sendForValidation(invoiceIds) {
+                    var alert = document.querySelector("#alert");  
+                    var alertMsg = document.querySelector("#_alert_msg");
+                    var loader = document.getElementById('loader');
+                    var btnText = document.getElementById('btnText');
+
+                    sendButton.disabled = true;
+                    loader.style.display = 'inline-block';
+                    btnText.style.display = 'none';
+
+                    $.ajax({
+                        url: `{{ route('articles.invoices.sendForValidation',':id') }}`,
+                        type: 'POST',
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            invoices: invoiceIds
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                alertMsg.innerHTML = "Les factures ont été envoyées pour validation avec succès!";
+                                alert.style.display = 'block'; 
+
+                                setTimeout(function() {
+                                    alert.style.display = 'none';  
+                                    window.location.reload(); 
+                                }, 5000);
+                            } else {
+                                alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
+                            }
+                        },
+                        error: function() {
+                            alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
+                        },
+                        complete: function() {
+                            checkboxes.forEach(checkbox => checkbox.checked = false);
+                            sendButton.style.display = 'none'; 
+                            loader.style.display = 'none';
+                            btnText.style.display = 'inline-block';
+                        }
+                    });
+                }
+            });
         </script>
     </section>
 </x-main>
