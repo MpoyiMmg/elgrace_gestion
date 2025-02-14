@@ -2,26 +2,28 @@
     <section class="invoice-list-wrapper">
         <div class="card">
             <div class="card-header">
-                <!-- Alert message -->
                 <div id="alert" style="display: none;">
                     <p id="_alert_msg"></p>
                 </div>
-                @role('cashier')
-                <button type="button" class="btn btn-primary" id="selectAllBtn">Sélectionner tout</button>
-                @endrole
-
-                @role('cashier')
-                <a href="{{ route('articles.invoices.create') }}" class="btn btn-primary">
-                    Créer une facture
-                </a>
-                @endrole
-
-                @role(['admin', 'manager'])
-                <a href="{{ route('articles.invoices.create') }}" class="btn btn-primary">
-                    Créer une facture
-                </a>
-                @endrole
-
+                @if (count($preInvoices)) 
+                <div class="text-left mb-2">
+                     @role('cashier')
+                    <input type="checkbox" id="selectAllInvoices">
+                    <label for="select-all-btn">Tout sélectionner</label>
+                    @endrole
+                </div>
+                <div class="d-flex justify-content-end align-items-center mb-2">
+                    @role('cashier')
+                    <button type="button" class="btn btn-success mr-2" id="sendForValidationBtn" disabled>
+                        <span id="btnText">Envoyer pour validation</span>
+                        <span id="loader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                    </button>
+                    @endrole
+                    @endif
+                    <a href="{{ route('articles.invoices.create') }}" class="btn btn-primary">
+                        Créer une facture
+                    </a>
+                </div>
                 <div class="btn-group dropdown-sort">
                     <button type="button" class="btn btn-outline-primary dropdown-toggle mr-1 waves-effect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="active-sorting">Modules</span>
@@ -33,14 +35,15 @@
                     </div>
                 </div>
             </div>
-
             <div class="card-datatable table-responsive">
                 @if (count($preInvoices))
                     @csrf
                     <table class="invoice-list-table table">
+                        
                         <thead>
                             <tr>
                                 <th>#</th>
+                                
                                 <th>Référence</th>
                                 <th>Module</th>
                                 <th>Client</th>
@@ -74,7 +77,21 @@
                                     @else
                                         <div class="badge badge-danger">En attente de correction</div>
                                     @endif
-                                @endrole
+                                    @endrole
+
+                                    @role('manager')
+                                    @if ($invoice->status === 'draft')
+                                        <div class="badge badge-info">En cours de création</div>
+                                    @elseif ($invoice->status === 'pending')
+                                        <div class="badge badge-warning">Proformat à valider</div>
+                                    @elseif ($invoice->status === 'validated')
+                                        <div class="badge badge-success">Facture prête à être envoyée</div>
+                                    @elseif ($invoice->status === 'accepted')
+                                        <div class="badge badge-secondary">Proformat convertie en facture</div>
+                                    @else
+                                        <div class="badge badge-danger">En attente de correction</div>
+                                    @endif
+                                    @endrole
 
                                     @role('cashier')
                                         @if ($invoice->status === 'draft')
@@ -113,122 +130,113 @@
                     </table>
                 @else
                 <tr>
-                    <td colspan="9" class="text-center">
-                        <img class="img-fluid" src="{{ asset('app-assets/images/pages/error.svg') }}" alt="Empty data" />
-                        <h3>Aucune proformat n'a été trouvée!</h3>
-                    </td>
+                    <div class="text-center p-5">
+                        <img class="img-fluid mb-3" src="{{ asset('app-assets/images/pages/error.svg') }}" alt="Aucune donnée" style="max-width: 300px;">
+                        <h3 class="text-muted">Aucune proformat n'a été trouvée!</h3>
+                    </div>
                 </tr>
                 @endif
             </div>
         </div>
 
-        @role('cashier')
-        <button type="button" class="btn btn-success" id="sendForValidationBtn" disabled>
-            <span id="btnText">Envoyer pour validation</span>
-            <span id="loader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
-        </button>
-        @endrole
-    </section>
+        <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    var selectAllCheckbox = document.getElementById('selectAllInvoices');
+    var checkboxes = document.querySelectorAll('.invoice-list-checkbox');
+    var sendButton = document.getElementById('sendForValidationBtn');
 
-    <script>
-        document.getElementById('selectAllBtn').addEventListener('click', function () {
-            var checkboxes = document.querySelectorAll('.invoice-list-checkbox');
-            var allSelected = Array.from(checkboxes).every(checkbox => checkbox.checked);
-            checkboxes.forEach(function (checkbox) {
-                checkbox.checked = !allSelected;
-            });
-            checkIfValidInvoicesSelected(); 
+    function checkIfAnyValidInvoiceSelected() {
+        var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
+        var isValid = false;
+
+        selectedInvoices.forEach(checkbox => {
+            var row = checkbox.closest('tr'); 
+            var status = row.querySelector('.badge').innerText.trim(); 
+
+            if (status !== 'Proformat convertie en facture' && status !== 'Facture prête à être envoyée') {
+                isValid = true; 
+            }
         });
 
-        function checkIfValidInvoicesSelected() {
-            var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
-            var validInvoiceSelected = false;
+        sendButton.disabled = !isValid;
+    }
 
-            selectedInvoices.forEach(function (checkbox) {
-                var invoiceRow = checkbox.closest('tr');
-                var statusCell = invoiceRow.querySelector('td:nth-child(7)');
-                var status = statusCell.textContent.trim();
+    selectAllCheckbox.addEventListener('change', function () {
+        checkboxes.forEach(checkbox => {
+            var row = checkbox.closest('tr');
+            var status = row.querySelector('.badge').innerText.trim();
 
-                if (status === 'En attente de validation' || status === 'Facture à corriger') {
-                    validInvoiceSelected = true;
-                }
-            });
-
-            var sendButton = document.getElementById('sendForValidationBtn');
-            sendButton.disabled = !validInvoiceSelected; 
-        }
-        document.getElementById('sendForValidationBtn').addEventListener('click', function () {
-            var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
-            if (selectedInvoices.length === 0) {
-                alert('Veuillez sélectionner des factures à valider.');
+            if (status !== 'Proformat convertie en facture' && status !== 'Facture prête à être envoyée') {
+                checkbox.checked = selectAllCheckbox.checked;
             } else {
-                var invoiceIds = [];
-                selectedInvoices.forEach(function (checkbox) {
-                    var invoiceRow = checkbox.closest('tr');
-                    var statusCell = invoiceRow.querySelector('td:nth-child(7)');
-                    var status = statusCell.textContent.trim();
-
-                    if (status === 'En attente de validation' || status === 'Facture à corriger') {
-                        invoiceIds.push(checkbox.getAttribute('value'));
-                    }
-                });
-
-                if (invoiceIds.length > 0) {
-                    sendForValidation(invoiceIds);
-                } else {
-                    alert('Aucune facture valide sélectionnée.');
-                }
+                checkbox.checked = false; 
             }
         });
+        checkIfAnyValidInvoiceSelected();
+    });
 
-        function sendForValidation(invoiceIds) {
-            var alert = document.querySelector("#alert");  
-            var alertMsg = document.querySelector("#_alert_msg");
-            var sendButton = document.getElementById('sendForValidationBtn');
-            var loader = document.getElementById('loader');
-            var btnText = document.getElementById('btnText');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', checkIfAnyValidInvoiceSelected);
+    });
 
-            if (!alert) {  
-                console.error("L'élément 'alert' n'a pas été trouvé dans le DOM.");
-                return;  
-            }
+    sendButton.addEventListener('click', function () {
+        var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
+        var invoiceIds = [];
 
-            sendButton.disabled = true;
-            loader.style.display = 'inline-block';
-            btnText.style.display = 'none';
+        selectedInvoices.forEach(checkbox => {
+            invoiceIds.push(checkbox.value);
+        });
 
-            $.ajax({
-                url: `{{ route('articles.invoices.sendForValidation',':id') }}`,
-                type: 'POST',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    invoices: invoiceIds 
-                },
-                success: function(response) {
-                    if (response.success) {
-                        alertMsg.innerHTML = "Les factures ont été envoyées pour validation avec succès!";
-                        alert.style.display = 'block'; 
-
-                        setTimeout(function() {
-                            alert.style.display = 'none';  
-                            window.location.reload(); 
-                        }, 5000);
-                    } else {
-                        alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
-                    }
-                },
-                error: function() {
-                    alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
-                },
-                complete: function() {
-                    document.querySelectorAll('.invoice-list-checkbox').forEach(function(checkbox) {
-                        checkbox.checked = false;
-                    });
-                    sendButton.disabled = false;
-                    loader.style.display = 'none';
-                    btnText.style.display = 'inline-block';
-                }
-            });
+        if (invoiceIds.length > 0) {
+            sendForValidation(invoiceIds);
+        } else {
+            alert('Veuillez sélectionner au moins une facture valide.');
         }
-    </script>
+    });
+
+    function sendForValidation(invoiceIds) {
+        var alert = document.querySelector("#alert");  
+        var alertMsg = document.querySelector("#_alert_msg");
+        var loader = document.getElementById('loader');
+        var btnText = document.getElementById('btnText');
+
+        sendButton.disabled = true;
+        loader.style.display = 'inline-block';
+        btnText.style.display = 'none';
+
+        $.ajax({
+            url: `{{ route('articles.invoices.sendForValidation',':id') }}`,
+            type: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                invoices: invoiceIds
+            },
+            success: function(response) {
+                if (response.success) {
+                    alertMsg.innerHTML = "Les factures ont été envoyées pour validation avec succès!";
+                    alert.style.display = 'block'; 
+
+                    setTimeout(function() {
+                        alert.style.display = 'none';  
+                        window.location.reload(); 
+                    }, 5000);
+                } else {
+                    alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
+                }
+            },
+            error: function() {
+                alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
+            },
+            complete: function() {
+                checkboxes.forEach(checkbox => checkbox.checked = false);
+                sendButton.disabled = true;
+                loader.style.display = 'none';
+                btnText.style.display = 'inline-block';
+            }
+        });
+    }
+});
+
+        </script>
+    </section>
 </x-main>
