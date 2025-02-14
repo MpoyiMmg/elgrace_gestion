@@ -207,9 +207,9 @@ class PreInvoiceController extends Controller
         $user = Auth::user();
         $modules = Module::all();
         if ($user->hasRole('cashier')) {
-           $preInvoices = PreInvoice::all();
+           $preInvoices = PreInvoice::paginate(10);
         } else {
-            $preInvoices = PreInvoice::all()->filter(function ($item) {
+            $preInvoices = PreInvoice::paginate(10)->filter(function ($item) {
                 return $item->status !== 'draft';
             });
         }

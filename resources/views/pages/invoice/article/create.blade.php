@@ -658,7 +658,7 @@
                 setInterval(function() {
                     errorAlert.style.display = 'none';
                     loadingBtn.style.display = 'none';
-                    saveBtn.style.display = 'block';
+                    otherSaveBtn.style.display = 'block';
                 }, 5000);
             } else if (selectedClient.trim() == '') {
                 isValid = false;
@@ -668,7 +668,7 @@
                 setInterval(function() {
                     errorAlert.style.display = 'none';
                     loadingBtn.style.display = 'none';
-                    saveBtn.style.display = 'block';
+                    otherSaveBtn.style.display = 'block';
                 }, 5000);
             } else {
                 isValid = true;
@@ -697,7 +697,7 @@
                         alertMsg.innerHTML = "Facture enregistrée avec succès!";
                         setInterval(function() {
                             alert.style.display = 'none';
-                            saveBtn.style.display = 'block';
+                            otherSaveBtn.style.display = 'block';
                             loadingBtn.style.display = 'none';
                         }, 5000);
 

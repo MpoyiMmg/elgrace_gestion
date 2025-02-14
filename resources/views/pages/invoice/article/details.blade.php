@@ -340,6 +340,7 @@
                     </div>
                 </div>
 
+                @if ($comments->count() > 0)
                 @if ($preInvoice->status === 'rejected' || $preInvoice->status === 'draft')
                 <div class="card">
                     <div class="card-header">
@@ -366,8 +367,9 @@
                         </div>
                     </div>
                 </div>
+                @endif
+                @endif
             </div>
-            @endif
         </div>
         </div>
         <!-- /Invoice Actions -->
@@ -385,7 +387,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="exampleFormControlTextarea1">Donner une explication sur la rejection</label>
-                            <textarea class="form-control" id="_content" rows="2" placeholder="Textarea"></textarea>
+                            <textarea class="form-control" id="_content" rows="2"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">

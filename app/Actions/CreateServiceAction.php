@@ -16,7 +16,7 @@ class CreateServiceAction
         $validator = Validator::make($data, [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
+            // 'price' => 'required|numeric|min:0',
         ]);
 
         if ($validator->fails()) {

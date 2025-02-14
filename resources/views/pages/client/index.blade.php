@@ -220,7 +220,7 @@
                         alertSuccess.style.display = 'none';
                         loadingBtn.style.display = 'none';
                         location.reload();
-                    }, 5000);
+                    }, 2000);
 
                     document.getElementById('_client_name').value = "";
                     document.getElementById('_address').value = "";

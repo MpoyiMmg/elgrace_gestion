@@ -140,15 +140,21 @@
                         <table class="table">
                             <thead>
                                 <tr>
+                                @if ($invoice->preInvoice->module->code === 'LCV')
                                     <th class="py-1">Description service</th>
                                     <th class="py-1">Prix unitaire</th>
                                     <th class="py-1">Quantité</th>
                                     <th class="py-1">Total</th>
+                                @else
+                                    <th class="py-1">Description service</th>
+                                    <th class="py-1">Prix</th>
+                                @endif
                                 </tr>
                             </thead>
                             <tbody>
-                                @if($details)
+                                @if(count($details) > 0)
                                 @foreach($details as $detail)
+                                @if ($invoice->preInvoice->module->code === 'LCV')
                                 <tr>
                                     <td class="py-1">
                                         <p class="card-text font-weight-bold mb-25">{{ $detail->article['name'] }}</p>
@@ -166,6 +172,16 @@
                                         <span class="font-weight-bold">${{ number_format($detail->total_amount, 2, '.', ',') }}</span>
                                     </td>
                                 </tr>
+                                @else
+                                <tr>
+                                    <td class="py-1">
+                                        <p class="card-text font-weight-bold mb-25"> {{ $detail->module_invoice_details }}</p>
+                                    </td>
+                                    <td class="py-1">
+                                        <span class="font-weight-bold">${{ number_format($detail->total_amount, 2, '.', ',') }}</span>
+                                    </td>
+                                </tr>
+                                @endif
                                 @endforeach
                                 @endif
                             </tbody>

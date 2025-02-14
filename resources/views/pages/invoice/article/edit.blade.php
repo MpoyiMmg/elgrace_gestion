@@ -40,6 +40,14 @@
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
+                <div class="alert alert-danger alert-dismissible fade show" id="_alert_error" role="alert">
+                    <div class="alert-body" id="_alert_msg">
+
+                    </div>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
                 <div class="card invoice-preview-card">
                     <!-- Header starts -->
                     <div class="card-body invoice-padding pb-0">
@@ -106,7 +114,7 @@
                                 <h6 class="mb-2">Appliquer une reduction (%):</h6>
                                 <div class="invoice-customer mt-2 p-1">
                                     <div class="input-group input-group-lg">
-                                        <input type="number" class="touchspin" value="{{ $preInvoice->reduction_rate > 0 ? $preInvoice->reduction_rate : 0 }}" name="stock" id="_reduction_rate" />
+                                        <input type="number" class="touchspin-min-max" value="{{ $preInvoice->reduction_rate > 0 ? $preInvoice->reduction_rate : 0 }}" name="stock" id="_reduction_rate" max="5" />
                                     </div>
                                 </div>
                             </div>
@@ -311,7 +319,9 @@
         var addItemBtn = document.querySelector("#_add_Item_btn");
         var saveBtn = document.querySelector("#_save_btn");
         var alert = document.querySelector("#_alert_el");
+        var errorAlert = document.querySelector("#_alert_error");
         alert.style.display = 'none';
+        errorAlert.style.display = 'none';
 
         window.onload = function() {
             var service = document.querySelector("#_service");
@@ -542,6 +552,14 @@
 
             var serviceItems = getItemsFromStorage();
 
+            if (reduction_rate > 5) {
+                errorAlert.style.display = 'block';
+                errorAlert.innerHTML = "Taux de réduction ne peut pas dépasser 5%!";
+                setInterval(function() {
+                   errorAlert.style.display = 'none';
+                }, 5000);
+                return;
+            }
             var data = {
                 issue_date: creationDate,
                 expiry_date: dueDate,

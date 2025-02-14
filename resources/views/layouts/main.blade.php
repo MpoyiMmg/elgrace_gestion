@@ -93,7 +93,7 @@ License: You must have a valid license purchased only from themeforest(the above
 
 <!-- BEGIN: Body-->
 
-<body class="vertical-layout vertical-menu-modern {{$route === 'articles.invoices.print' ? 'blank-page' : '' }}  navbar-floating footer-static  " data-open="click" data-menu="vertical-menu-modern" data-col="{{$route === 'articles.invoices.print' ? 'blank-page' : '' }}">
+<body class="vertical-layout vertical-menu-modern {{$route === 'articles.invoices.print' ? 'blank-page' : '' }}  navbar-floating footer-static  dark-layout" data-open="click" data-menu="vertical-menu-modern" data-col="{{$route === 'articles.invoices.print' ? 'blank-page' : '' }}">
 
     <!-- BEGIN: Header-->
     @if ($route !== 'articles.invoices.print' && $route !== 'final-invoices.print')

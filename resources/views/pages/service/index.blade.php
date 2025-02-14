@@ -35,7 +35,6 @@
                             <tr>
                                 <th>Nom</th>
                                 <th>Description</th>
-                                <th>Prix unitaire</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -48,9 +47,6 @@
                                     <span class="font-weight-bold">{{ $service->name }}</span>
                                 </td>
                                 <td>{{ $service->description }}</td>
-                                <td>
-                                    {{ $service->price }} $
-                                </td>
                                 <td>
                                     <div class="dropdown">
                                         <button type="button" class="btn btn-sm dropdown-toggle hide-arrow" data-toggle="dropdown">
@@ -135,12 +131,6 @@
                                     <textarea class="form-control" id="_description" name="description" rows="3" placeholder="Une petite description de l'article au besoin"></textarea>
                                 </div>
                             </div>
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="_unit_price">Prix unitaire</label>
-                                    <input type="number" id="_unit_price" class="form-control" name="unit_price" placeholder="Ex: 100" />
-                                </div>
-                            </div>
                             <hr>
                             <div class="col-12 mt-2">
                                 <button class="btn btn-outline-primary" type="button" id="_loading_btn" disabled>
@@ -175,12 +165,10 @@
 
             const serviceName = document.getElementById('_service_name').value;
             const description = document.getElementById('_description').value;
-            const unitPrice = document.getElementById('_unit_price').value;
 
             const data = {
                 name: serviceName,
                 description: description,
-                price: unitPrice,
                 _token: "{{ csrf_token() }}"
             };
 
@@ -200,7 +188,6 @@
 
                     document.getElementById('_service_name').value = "";
                     document.getElementById('_description').value = "";
-                    document.getElementById('_unit_price').value = "";
                 },
                 error: function(error) {
                     console.error("Error occured : ", error);
