@@ -1,4 +1,15 @@
 <x-main>
+    @if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
     <section id="basic-horizontal-layouts">
         <div class="row">
             <div class="col-md-10 offset-md-1 col-12">

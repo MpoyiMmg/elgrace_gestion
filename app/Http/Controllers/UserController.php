@@ -64,14 +64,20 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user)
+    public function edit(Request $request, $id)
     { 
-        $user = Auth::user();
-       
+        $user = User::find($id);
+        
         $roles = Role::where('name', '<>', strtolower('admin'))->get();
-        return view('pages.users.edit', compact('user', 'roles'));
+        
+        $successMessage = $request->session()->get('success');
+        $errorMessage = $request->session()->get('error');
+        
+        return view('pages.users.edit', compact('user', 'roles', 'successMessage', 'errorMessage'));
     }
     
+    
+
 
     /**
      * Update the specified resource in storage.
@@ -88,7 +94,7 @@ class UserController extends Controller
         if(!is_null($request->role_id)) {
             $role = Role::find($request->role_id);
             $user->syncRoles([]);
-            $user->assignRole($role->name);
+            $user->assignRole($role);
         }
     return to_route('users.edit', $user->id)->with('success', 'Utilisateur modifié avec succès!');
 }
