@@ -493,21 +493,37 @@ class PreInvoiceController extends Controller
 
     public function validateArticleInvoice(Request $request) {
         $user = Auth::user();
+        $invoiceIds = $request->input('invoices', []);
     
-        $invoiceIds = $request->invoices;
-    
-        $updatedInvoices = PreInvoice::whereIn('id', $invoiceIds)->update([
-            'status' => 'validated',
-            'validated_at' => Carbon::now(),
-            'validated_by' => $user->id
-        ]);
-    
-        if ($updatedInvoices) {
-            return response()->json(['message' => "Invoices validated successfully"], 200);
-        } else {
-            return response()->json(['message' => "No invoices found or updated"], 400);
+        if (empty($invoiceIds)) {
+            return response()->json(['message' => "Aucune facture sélectionnée"], 400);
         }
+    
+        if (!is_array($invoiceIds)) {
+            $invoiceIds = [$invoiceIds]; 
+        }
+    
+        $preInvoices = PreInvoice::whereIn('id', $invoiceIds)->get();
+    
+        if ($preInvoices->isEmpty()) {
+            return response()->json(['message' => "Aucune facture trouvée"], 404);
+        }
+    
+        foreach ($preInvoices as $preInvoice) {
+            $preInvoice->update([
+                'status' => 'validated',
+                'validated_at' => now(),
+                'validated_by' => $user->id
+            ]);
+        }
+    
+        return response()->json([
+            'success' => true, 
+            'message' => count($invoiceIds) > 1 ? "Factures validées avec succès" : "Facture validée avec succès"
+        ], 200);
     }
+    
+    
     
     public function rejectArticleInvoice(Request $request) {
         $user = Auth::user();
@@ -527,21 +543,24 @@ class PreInvoiceController extends Controller
     }
     public function sendForValidation(Request $request) {
         $invoiceIds = $request->input('invoices');
-        if (!is_array($invoiceIds)) {
-            $invoiceIds = [$invoiceIds]; 
+    
+        if (!$invoiceIds || (is_array($invoiceIds) && count($invoiceIds) === 0)) {
+            return response()->json(['success' => false, 'message' => 'Aucune facture sélectionnée.'], 400);
         }
     
-        if (empty($invoiceIds)) {
-            return response()->json(['success' => false, 'message' => 'Aucune facture sélectionnée.']);
+        $invoiceIds = is_array($invoiceIds) ? $invoiceIds : [$invoiceIds];
+    
+        $preInvoices = PreInvoice::whereIn('id', $invoiceIds)->get();
+    
+        if ($preInvoices->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Aucune facture trouvée.'], 404);
         }
-        $updatedInvoices = PreInvoice::whereIn('id', $invoiceIds)->update(['status' => 'pending']);
-        
-        if ($updatedInvoices) {
-            return response()->json(['success' => true, 'message' => 'Les factures ont été envoyées pour validation avec succès.']);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Aucune facture trouvée pour la mise à jour.']);
-        }
+    
+        PreInvoice::whereIn('id', $invoiceIds)->update(['status' => 'pending']);
+    
+        return response()->json(['success' => true, 'message' => 'Les factures ont été envoyées pour validation avec succès.'], 200);
     }
+    
     
     
 
