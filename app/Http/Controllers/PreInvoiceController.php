@@ -493,16 +493,22 @@ class PreInvoiceController extends Controller
 
     public function validateArticleInvoice(Request $request) {
         $user = Auth::user();
-        $preInvoice = PreInvoice::find($request->invoice);
-        $preInvoice->update([
+    
+        $invoiceIds = $request->invoices;
+    
+        $updatedInvoices = PreInvoice::whereIn('id', $invoiceIds)->update([
             'status' => 'validated',
             'validated_at' => Carbon::now(),
             'validated_by' => $user->id
         ]);
-
-        return response()->json(['message' => "Invoice validated successfully"], 200);
+    
+        if ($updatedInvoices) {
+            return response()->json(['message' => "Invoices validated successfully"], 200);
+        } else {
+            return response()->json(['message' => "No invoices found or updated"], 400);
+        }
     }
-
+    
     public function rejectArticleInvoice(Request $request) {
         $user = Auth::user();
         $preInvoice = PreInvoice::find($request->invoice);

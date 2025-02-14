@@ -7,15 +7,21 @@
                 </div>
                 @if (count($preInvoices)) 
                 <div class="text-left mb-2">
-                     @role('cashier')
+                  
                     <input type="checkbox" id="selectAllInvoices">
                     <label for="select-all-btn">Tout sélectionner</label>
-                    @endrole
+                
                 </div>
                 <div class="d-flex justify-content-end align-items-center mb-2">
                     @role('cashier')
                     <button type="button" class="btn btn-success mr-2" id="sendForValidationBtn" style="display: none;">
                         <span id="btnText">Envoyer pour validation</span>
+                        <span id="loader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                    </button>
+                    @endrole
+                    @role('manager')
+                    <button type="button" class="btn btn-success mr-2" id="validatedBtn" style="display: none;">
+                        <span id="btnText">validation de facture</span>
                         <span id="loader" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
                     </button>
                     @endrole
@@ -139,106 +145,290 @@
             </div>
         </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                var selectAllCheckbox = document.getElementById('selectAllInvoices');
-                var checkboxes = document.querySelectorAll('.invoice-list-checkbox');
-                var sendButton = document.getElementById('sendForValidationBtn');
+     <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    var selectAllCheckbox = document.getElementById('selectAllInvoices');
+    var checkboxes = document.querySelectorAll('.invoice-list-checkbox');
+    var sendButton = document.getElementById('sendForValidationBtn');
+    var validatedBtn = document.getElementById('validatedBtn');
+    var loadingBtn = document.getElementById('loader');
+    var alert = document.getElementById('alert');
+    var alertMsg = document.querySelector("#_alert_msg");
+    var errorAlert = document.getElementById('errorAlert');
+    var errorAlertMsg = document.querySelector("#_error_alert_msg");
+    var btnText = document.getElementById('btnText');
 
-                function checkIfAnyValidInvoiceSelected() {
-                    var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
-                    var isValid = false;
+    var activeRole = '{{ auth()->user()->roles->first()->name }}';  
 
-                    selectedInvoices.forEach(checkbox => {
-                        var row = checkbox.closest('tr'); 
-                        var status = row.querySelector('.badge').innerText.trim(); 
+    function checkIfAnyValidInvoiceSelected() {
+        var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
+        var isValid = false;
 
-                        if (status !== 'Proformat convertie en facture' && status !== 'Facture prête à être envoyée' && status !== 'En attente de validation') {
-                            isValid = true; 
-                        }
-                    });
-                    if (selectedInvoices.length > 0 && isValid) {
-                        sendButton.style.display = 'inline-block';
-                    } else {
-                        sendButton.style.display = 'none'; 
-                    }
-                }
+        selectedInvoices.forEach(checkbox => {
+            var row = checkbox.closest('tr');
+            var status = row.querySelector('.badge').innerText.trim();
 
-                selectAllCheckbox.addEventListener('change', function () {
-                    checkboxes.forEach(checkbox => {
-                        var row = checkbox.closest('tr');
-                        var status = row.querySelector('.badge').innerText.trim();
+            if (status !== 'Proformat convertie en facture' && status !== 'Facture prête à être envoyée' && status !== 'En attente de validation') {
+                isValid = true;
+            }
+        });
 
-                        if (status !== 'Proformat convertie en facture' && status !== 'Facture prête à être envoyée' ) {
-                            checkbox.checked = selectAllCheckbox.checked;
-                        } else {
-                            checkbox.checked = false; 
-                        }
-                    });
-                    checkIfAnyValidInvoiceSelected();
-                });
+        if (selectedInvoices.length > 0 && isValid) {
+            if (activeRole === 'cashier' && sendButton) {
+                sendButton.style.display = 'inline-block'; 
+                validatedBtn.style.display = 'none';  
+            } else if (activeRole === 'manager' && validatedBtn) {
+                validatedBtn.style.display = 'inline-block';  
+            }
+        } else {
+            if (sendButton) sendButton.style.display = 'none';
+            if (validatedBtn) validatedBtn.style.display = 'none';
+        }
+    }
+    selectAllCheckbox.addEventListener('change', function () {
+        checkboxes.forEach(checkbox => {
+            var row = checkbox.closest('tr');
+            var status = row.querySelector('.badge').innerText.trim();
+            if (status !== 'Proformat convertie en facture' && status !== 'Facture prête à être envoyée' && status !== 'En attente de validation') {
+                checkbox.checked = selectAllCheckbox.checked;
+            } else {
+                checkbox.checked = false;  
+            }
+        });
+        checkIfAnyValidInvoiceSelected();  
+    });
 
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', checkIfAnyValidInvoiceSelected);
-                });
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', checkIfAnyValidInvoiceSelected);
+    });
 
-                sendButton.addEventListener('click', function () {
-                    var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
-                    var invoiceIds = [];
+    sendButton.addEventListener('click', function () {
+        var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
+        var invoiceIds = [];
 
-                    selectedInvoices.forEach(checkbox => {
-                        invoiceIds.push(checkbox.value);
-                    });
+        selectedInvoices.forEach(checkbox => {
+            invoiceIds.push(checkbox.value);
+        });
 
-                    if (invoiceIds.length > 0) {
-                        sendForValidation(invoiceIds);
-                    } else {
-                        alert('Veuillez sélectionner au moins une facture valide.');
-                    }
-                });
+        if (invoiceIds.length > 0) {
+            sendForValidation(invoiceIds); 
+        } else {
+            alert('Veuillez sélectionner au moins une facture valide.');
+        }
+    });
+    if (validatedBtn) {
+        validatedBtn.addEventListener('click', function () {
+            var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
+            var invoiceIds = [];
 
-                function sendForValidation(invoiceIds) {
-                    var alert = document.querySelector("#alert");  
-                    var alertMsg = document.querySelector("#_alert_msg");
-                    var loader = document.getElementById('loader');
-                    var btnText = document.getElementById('btnText');
-
-                    sendButton.disabled = true;
-                    loader.style.display = 'inline-block';
-                    btnText.style.display = 'none';
-
-                    $.ajax({
-                        url: `{{ route('articles.invoices.sendForValidation',':id') }}`,
-                        type: 'POST',
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            invoices: invoiceIds
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                alertMsg.innerHTML = "Les factures ont été envoyées pour validation avec succès!";
-                                alert.style.display = 'block'; 
-
-                                setTimeout(function() {
-                                    alert.style.display = 'none';  
-                                    window.location.reload(); 
-                                }, 5000);
-                            } else {
-                                alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
-                            }
-                        },
-                        error: function() {
-                            alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
-                        },
-                        complete: function() {
-                            checkboxes.forEach(checkbox => checkbox.checked = false);
-                            sendButton.style.display = 'none'; 
-                            loader.style.display = 'none';
-                            btnText.style.display = 'inline-block';
-                        }
-                    });
-                }
+            selectedInvoices.forEach(function(checkbox) {
+                invoiceIds.push(checkbox.value);
             });
+
+            if (invoiceIds.length > 0) {
+                validateInvoices(invoiceIds);  
+            } else {
+                alert('Veuillez sélectionner au moins une facture.');
+            }
+        });
+    }
+    function validateInvoice(invoiceIds) {
+        var alert = document.querySelector("#alert");
+        var alertMsg = document.querySelector("#_alert_msg");
+        var loader = document.getElementById('loader');
+        var btnText = document.getElementById('btnText');;
+
+        validatedBtn.disabled = true;
+        loader.style.display = 'inline-block';
+        btnText.style.display = 'none';
+
+        $.ajax({
+            url: `{{ route('articles.invoices.validate', ':id') }}`.replace(':id', invoiceIds),
+            type: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                invoices: invoiceIds
+            },
+            success: function(response) {
+                if (response.success) {
+                    alertMsg.innerHTML = "Les factures ont été envoyées pour validation avec succès!";
+                    alert.style.display = 'block';
+
+                    setTimeout(function() {
+                        alert.style.display = 'none';
+                        window.location.reload();
+                    }, 5000);
+                } else {
+                    alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
+                }
+            },
+            error: function() {
+                alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
+            },
+            error: function(error) {
+                errorAlert.style.display = 'block';
+                errorAlertMsg.innerHTML = "Erreur lors de la validation de la facture.";
+
+                setTimeout(function() {
+                    errorAlert.style.display = 'none';
+                }, 5000);
+            },
+            complete: function() {
+                checkboxes.forEach(checkbox => checkbox.checked = false);
+                validatedBtn.style.display = 'none';
+                loader.style.display = 'none';
+                btnText.style.display = 'inline-block';
+            }
+        });
+    }
+
+    function sendForValidation(invoiceIds) {
+        var alert = document.querySelector("#alert");
+        var alertMsg = document.querySelector("#_alert_msg");
+        var loader = document.getElementById('loader');
+        var btnText = document.getElementById('btnText');
+
+        sendButton.disabled = true;
+        loader.style.display = 'inline-block';
+        btnText.style.display = 'none';
+
+        $.ajax({
+            url: `{{ route('articles.invoices.sendForValidation', ':id') }}`.replace(':id', invoiceIds),
+            type: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                invoices: invoiceIds
+            },
+            success: function(response) {
+                if (response.success) {
+                    alertMsg.innerHTML = "Les factures ont été envoyées pour validation avec succès!";
+                    alert.style.display = 'block';
+
+                    setTimeout(function() {
+                        alert.style.display = 'none';
+                        window.location.reload();
+                    }, 5000);
+                } else {
+                    alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
+                }
+            },
+            error: function() {
+                alertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
+            },
+            complete: function() {
+                checkboxes.forEach(checkbox => checkbox.checked = false);
+                sendButton.style.display = 'none';
+                loader.style.display = 'none';
+                btnText.style.display = 'inline-block';
+            }
+        });
+    }
+
+    checkIfAnyValidInvoiceSelected();
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    var sendButton = document.getElementById('sendForValidationBtn');
+    var validatedBtn = document.getElementById('validatedBtn');
+
+    function sendForValidation(invoiceIds) {
+        var loader = document.getElementById('loader');
+        var btnText = document.getElementById('btnText');
+        loader.style.display = 'inline-block';
+        btnText.style.display = 'none';
+
+        $.ajax({
+            url: `{{ route('articles.invoices.sendForValidation', ':id') }}`.replace(':id', invoiceIds),
+            type: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                invoices: invoiceIds
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('Les factures ont été envoyées pour validation avec succès!');
+                    window.location.reload();
+                } else {
+                    alert('Une erreur s\'est produite. Veuillez réessayer.');
+                }
+            },
+            error: function() {
+                alert('Une erreur s\'est produite. Veuillez réessayer.');
+            },
+            complete: function() {
+                loader.style.display = 'none';
+                btnText.style.display = 'inline-block';
+            }
+        });
+    }
+
+  
+    function validateInvoices(invoiceIds) {
+        var loader = document.getElementById('loader');
+        var btnText = document.getElementById('btnText');
+        loader.style.display = 'inline-block';
+        btnText.style.display = 'none';
+
+        $.ajax({
+            url: `{{ route('articles.invoices.validate', ':id') }}`.replace(':id', invoiceIds),
+            type: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                invoices: invoiceIds
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('Les factures ont été validées avec succès!');
+                    window.location.reload();
+                } else {
+                    alert('Une erreur s\'est produite. Veuillez réessayer.');
+                }
+            },
+            error: function() {
+                alert('Une erreur s\'est produite. Veuillez réessayer.');
+            },
+            complete: function() {
+                loader.style.display = 'none';
+                btnText.style.display = 'inline-block';
+            }
+        });
+    }
+
+    if (sendButton) {
+        sendButton.addEventListener('click', function () {
+            var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
+            var invoiceIds = [];
+
+            selectedInvoices.forEach(function(checkbox) {
+                invoiceIds.push(checkbox.value);
+            });
+
+            if (invoiceIds.length > 0) {
+                sendForValidation(invoiceIds);
+            } else {
+                alert('Veuillez sélectionner au moins une facture valide.');
+            }
+        });
+    }
+
+    if (validatedBtn) {
+        validatedBtn.addEventListener('click', function () {
+            var selectedInvoices = document.querySelectorAll('.invoice-list-checkbox:checked');
+            var invoiceIds = [];
+
+            selectedInvoices.forEach(function(checkbox) {
+                invoiceIds.push(checkbox.value);
+            });
+
+            if (invoiceIds.length > 0) {
+                validateInvoices(invoiceIds);
+            } else {
+                alert('Veuillez sélectionner au moins une facture.');
+            }
+        });
+    }
+});
+
         </script>
     </section>
 </x-main>
