@@ -1,4 +1,22 @@
 <x-main>
+    @if (session('success'))
+    <div class="col-lg-8 offset-lg-2 col-sm-12">
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    </div>
+    @endif
+    @if ($errors->any())
+    <div class="col-lg-8 offset-lg-2 col-sm-12">
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+@endif
     <div class="row" id="basic-table">
         <div class="col-12">
             <div class="card">
@@ -43,14 +61,19 @@
                                             <i data-feather="more-vertical"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="javascript:void(0);">
+                                            <a class="dropdown-item" href="{{ route('articles.edit', $article->id) }}">
                                                 <i data-feather="edit-2" class="mr-50"></i>
-                                                <span>Edit</span>
+                                                <span>Editer</span>
                                             </a>
-                                            <a class="dropdown-item" href="javascript:void(0);">
-                                                <i data-feather="trash" class="mr-50"></i>
-                                                <span>Delete</span>
-                                            </a>
+                                            
+                                            <form action="{{ route('articles.destroy', $article->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item">
+                                                    <i data-feather="trash" class="mr-50"></i>
+                                                    <span>Supprimer</span>
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </td>

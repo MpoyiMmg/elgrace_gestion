@@ -1,14 +1,15 @@
 <?php
 
-use App\Http\Controllers\ArticleController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ClientController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ModuleController;
-use App\Http\Controllers\PreInvoiceController;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PreInvoiceController;
 
 Route::get('/', function () {
     return to_route('login');
@@ -28,6 +29,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/articles', 'index')->name('articles.index');
         Route::get('/articles/create', 'create')->name('articles.create');
         Route::post('/articles/store', 'store')->name('articles.store');
+        Route::get('/articles/{article}/edit','edit')->name('articles.edit');
+        Route::put('/articles/{article}','update')->name('articles.update');
+        Route::delete('/articles/{article}','destroy')->name('articles.destroy');
+
         // Route::get('/{article}', [ArticleController::class, 'show'])->name('articles.show');
         // Route::get('/{article}/edit', [ArticleController::class, 'edit'])->name('articles.edit');
         // Route::patch('/{article}', [ArticleController::class, 'update'])->name('articles.update');
@@ -38,6 +43,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/services', 'index')->name("services.index");
         Route::get('/services/create', [ServiceController::class, 'create'])->name("services.create");
         Route::post('/services/store', [ServiceController::class,'store'])->name("services.store");
+        Route::get('services/{service}/edit','edit')->name('services.edit');
+        Route::put('services/{service}','update')->name('services.update');
+        Route::delete('/services/{service}','destroy')->name('services.destroy');
+
+
+
         // Route::get('/{service}', [ServiceController::class,'show'])->name("services.show");
         // Route::get('/{service}/edit', [ServiceController::class, 'edit'])->name("services.edit");
         // Route::patch('/{service}', [ServiceController::class, 'update'])->name("services.update");
@@ -48,6 +59,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/clients', 'index')->name('clients.index');
         Route::get('/clients/create', 'create')->name('clients.create');
         Route::post('/clients/store', 'store')->name('clients.store');
+        Route::get('clients/{client}/edit','edit')->name('clients.edit');
+        Route::put('clients/{client}', 'update')->name('clients.update');
+        Route::delete('clients/{client}','destroy')->name('clients.destroy');
+
+
     });
 
     Route::controller(ModuleController::class)->group(function() {
@@ -93,6 +109,21 @@ Route::middleware('auth')->group(function () {
         Route::get('/final-invoices/{invoice}/print', 'printInvoice')->name('final-invoices.print');
         Route::post('/final-invoices/{invoice}/add-payment', 'makePayment')->name('final-invoices.add-payment');
     });
+
+   
+    Route::controller(UserController::class)->group(function () {
+        Route::get('/users', 'index')->name('users.index');
+        Route::get('/users/create', 'create')->name('users.create');
+        Route::post('/users/store', 'store')->name('users.store');
+        Route::get('/users/{user}/edit','edit')->name('users.edit'); 
+        Route::put('/users/{user}','update')->name('users.update'); 
+        Route::delete('/users/{user}','destroy')->name('users.destroy');
+
+        Route::get('/change-password', 'changePasswordForm')->name('password.changeuser');
+        Route::put('/change-password', 'updatePassword')->name('update.password'); 
+    });
+    
+
 });
 
 

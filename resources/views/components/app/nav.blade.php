@@ -19,16 +19,18 @@
                     </span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-user">
+                    <a class="dropdown-item text-truncate" href="{{ route('password.changeuser') }}">
+                        <i class="mr-30" data-feather="key"></i> Changer mot de passe
+                    </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-
-                        <a class="dropdown-item" href="{{route('logout')}}" onclick="event.preventDefault();
-                                            this.closest('form').submit();">
-                        <i class="mr-50" data-feather="power"></i> 
-                        Deconnexion
-                            </a>
+                        <a class="dropdown-item text-truncate" href="{{route('logout')}}" onclick="event.preventDefault();
+                                        this.closest('form').submit();">
+                            <i class="mr-50" data-feather="power"></i> Deconnexion
+                        </a>
                     </form>
                 </div>
+                
             </li>
         </ul>
     </div>

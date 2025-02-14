@@ -1,10 +1,28 @@
 <x-main>
+    @if (session('success'))
+    <div class="col-lg-8 offset-lg-2 col-sm-12">
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    </div>
+    @endif
+    @if ($errors->any())
+    <div class="col-lg-8 offset-lg-2 col-sm-12">
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+@endif
     <section id="basic-horizontal-layouts">
         <div class="row">
             <div class="col-md-10 offset-md-1 col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Horizontal Form</h4>
+                        <h4 class="card-title">Formulaire utilisateur</h4>
                     </div>
                     <div class="card-body">
                         <form class="form form-horizontal" method="POST" action="{{ route('articles.store') }}">

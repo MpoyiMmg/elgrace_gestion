@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\CreateArticleAction;
 use App\Models\Article;
 use Illuminate\Http\Request;
+use App\Actions\CreateArticleAction;
+use App\Actions\UpdateArticleAction;
 
 class ArticleController extends Controller
 {
@@ -53,22 +54,36 @@ class ArticleController extends Controller
      */
     public function edit(Article $article)
     {
-        //
+        return view('pages.article.edit', compact('article'));
     }
+    
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Article $article)
+    public function update(Request $request, Article $article, UpdateArticleAction $updateArticleAction)
     {
-        //
+        try {
+            $updateArticleAction->execute($article, $request->all());
+    
+            return redirect()->route('articles.index')->with('success', 'Article mis à jour avec succès!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
+    
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Article $article)
-    {
-        //
+{
+    try {
+        $article->delete();
+        return redirect()->route('articles.index')->with('success', 'Article supprimé avec succès.');
+    } catch (\Exception $e) {
+        return redirect()->route('articles.index')->with('error', 'Une erreur est survenue lors de la suppression.');
     }
+}
+
 }

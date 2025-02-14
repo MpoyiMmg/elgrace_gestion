@@ -110,6 +110,16 @@ class Main extends Component
                 'is_active' => $route === 'modules.index',
                 'group' => 'apps',
                 'roles' => ['admin', 'manager']
+            ],
+
+            (object) [
+                'id' => 8,
+                'title' => 'Utilisateurs',
+                'url' => 'users.index',
+                'icon' => 'users',
+                'is_active' => $route === 'users.index',
+                'group' => 'apps',
+                'roles' => ['admin', 'manager']
             ]
         ];
         return $menus;

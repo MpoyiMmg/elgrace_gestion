@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\CreateServiceAction;
 use App\Models\Service;
 use Illuminate\Http\Request;
+use App\Actions\CreateServiceAction;
+use App\Actions\UpdateServiceAction;
 
 class ServiceController extends Controller
 {
@@ -53,22 +54,36 @@ class ServiceController extends Controller
      */
     public function edit(Service $service)
     {
-        //
+        return view('pages.service.edit', compact('service'));
     }
+    
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Service $service)
+    public function update(Request $request, Service $service, UpdateServiceAction $updateServiceAction)
     {
-        //
+        try {
+            $updateServiceAction->execute($service, $request->all());
+    
+            return redirect()->route('services.index')->with('success', 'Service mis à jour avec succès!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
+    
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Service $service)
-    {
-        //
+{
+    try {
+        $service->delete();
+        return redirect()->route('services.index')->with('success', 'Service supprimé avec succès.');
+    } catch (\Exception $e) {
+        return redirect()->route('services.index')->with('error', 'Une erreur est survenue lors de la suppression.');
     }
+}
+
 }
