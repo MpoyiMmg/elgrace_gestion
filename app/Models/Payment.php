@@ -13,6 +13,8 @@ class Payment extends Model
         'payment_date',
         'payment_amount',
         'invoice_id',
-        'payment_method'
+        'payment_method',
+        'remaining_amount',
+        'surplus_amount'
     ];
 }

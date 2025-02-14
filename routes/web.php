@@ -108,6 +108,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/final-invoices/{invoice}', 'details')->name('final-invoices.details');
         Route::get('/final-invoices/{invoice}/print', 'printInvoice')->name('final-invoices.print');
         Route::post('/final-invoices/{invoice}/add-payment', 'makePayment')->name('final-invoices.add-payment');
+        Route::get('/final-invoices/{invoice}/historic-payments', 'historicPayments')->name('final-invoices.historic-payments');
     });
 
    

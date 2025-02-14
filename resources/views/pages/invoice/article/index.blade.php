@@ -71,21 +71,7 @@
                                 <td>${{ number_format($invoice->total_amount, 2, '.', ',') }}</td>
                                 <td class="text-truncate">{{ date('d-m-Y', strtotime($invoice->issue_date)) }}</td>
                                 <td>
-                                    @role('admin')
-                                    @if ($invoice->status === 'draft')
-                                        <div class="badge badge-info">En cours de création</div>
-                                    @elseif ($invoice->status === 'pending')
-                                        <div class="badge badge-warning">Proformat à valider</div>
-                                    @elseif ($invoice->status === 'validated')
-                                        <div class="badge badge-success">Facture prête à être envoyée</div>
-                                    @elseif ($invoice->status === 'accepted')
-                                        <div class="badge badge-secondary">Proformat convertie en facture</div>
-                                    @else
-                                        <div class="badge badge-danger">En attente de correction</div>
-                                    @endif
-                                    @endrole
-
-                                    @role('manager')
+                                    @role(['manager', 'admin'])
                                     @if ($invoice->status === 'draft')
                                         <div class="badge badge-info">En cours de création</div>
                                     @elseif ($invoice->status === 'pending')

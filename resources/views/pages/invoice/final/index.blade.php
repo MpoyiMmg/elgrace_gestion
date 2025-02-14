@@ -2,6 +2,16 @@
     <section class="invoice-list-wrapper">
         <div class="card">
             <div class="card-header">
+                <div class="btn-group dropdown-sort text-right">
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle mr-1 waves-effect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="active-sorting">Modules</span>
+                    </button>
+                    <div class="dropdown-menu" style="">
+                        @foreach($modules as $module)
+                        <a class="dropdown-item" href="javascript:void(0);">{{ $module->name }}</a>
+                        @endforeach
+                    </div>
+                </div>
             </div>
             <div class="card-datatable table-responsive">
                 @if (count($invoices))
@@ -10,6 +20,7 @@
                         <tr>
                             <th></th>
                             <th>#</th>
+                            <th>Module</th>
                             <th>Référence</th>
                             <th>Client</th>
                             <th>Total à payer</th>
@@ -27,6 +38,8 @@
                                 <input type="checkbox" class="form-check-input invoice-list-checkbox" id="invoice-{{ $invoice->id }}">
                                 <label class="form-check-label" for="invoice-{{ $invoice->id }}"></label>
                             </td>
+                            <td>{{ $invoice->preInvoice->module->name }}</td>
+
                             <td>
                                 {{ $invoice->reference }}
                             </td>

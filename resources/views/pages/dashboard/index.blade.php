@@ -1,55 +1,134 @@
 <x-main>
-    <!-- Kick start -->
-    <div class="card">
-        <div class="card-header">
-            <h4 class="card-title">Kick start your next project 🚀</h4>
-        </div>
-        <div class="card-body">
-            <div class="card-text">
-                <p>
-                    Getting start with your project custom requirements using a ready template which is quite difficult and time
-                    taking process, Vuexy Admin provides useful features to kick start your project development with no efforts !
-                </p>
-                <ul>
-                    <li>
-                        Vuexy Admin provides you getting start pages with different layouts, use the layout as per your custom
-                        requirements and just change the branding, menu &amp; content.
-                    </li>
-                    <li>
-                        Every components in Vuexy Admin are decoupled, it means use use only components you actually need! Remove
-                        unnecessary and extra code easily just by excluding the path to specific SCSS, JS file.
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <!--/ Kick start -->
-
-    <!-- Page layout -->
-    <div class="card">
-        <div class="card-header">
-            <h4 class="card-title">What is page layout?</h4>
-        </div>
-        <div class="card-body">
-            <div class="card-text">
-                <p>
-                    Starter kit includes pages with different layouts, useful for your next project to start development process
-                    from scratch with no time.
-                </p>
-                <ul>
-                    <li>Each layout includes required only assets only.</li>
-                    <li>
-                        Select your choice of layout from starter kit, customize it with optional changes like colors and branding,
-                        add required dependency only.
-                    </li>
-                </ul>
-                <div class="alert alert-primary" role="alert">
-                    <div class="alert-body">
-                        <strong>Info:</strong> Please check the &nbsp;<a class="text-primary" href="https://pixinvent.com/demo/vuexy-html-bootstrap-admin-template/documentation/documentation-layouts.html#layout-collapsed-menu" target="_blank">Layout documentation</a>&nbsp; for more layout options i.e collapsed menu, without menu, empty & blank.
+    <section id="dashboard-analytics">
+        <div class="row match-height">
+            <!-- Greetings Card starts -->
+            <div class="col-lg-6 col-md-12 col-sm-12">
+                <div class="card card-congratulations">
+                    <div class="card-body text-center">
+                        <img src="../../../app-assets/images/elements/decore-left.png" class="congratulations-img-left" alt="card-img-left" />
+                        <img src="../../../app-assets/images/elements/decore-right.png" class="congratulations-img-right" alt="card-img-right" />
+                        <div class="avatar avatar-xl bg-primary shadow">
+                            <div class="avatar-content">
+                                <i data-feather="award" class="font-large-1"></i>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <h1 class="mb-1 text-white">Bonjour {{ $user->name }},</h1>
+                            <p class="card-text m-auto w-75">
+                                Bienvenue sur le tableau de board
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
+            <!-- Greetings Card ends -->
+
+            <!-- Subscribers Chart Card starts -->
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="card">
+                    <div class="card-header flex-column align-items-start pb-0">
+                        <div class="avatar bg-light-primary p-50 m-0">
+                            <div class="avatar-content">
+                                <i data-feather="users" class="font-medium-5"></i>
+                            </div>
+                        </div>
+                        <h2 class="font-weight-bolder mt-1">15</h2>
+                        <p class="card-text">Factures payées</p>
+                    </div>
+                    <div id="gained-chart"></div>
+                </div>
+            </div>
+            <!-- Subscribers Chart Card ends -->
+
+            <!-- Orders Chart Card starts -->
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="card">
+                    <div class="card-header flex-column align-items-start pb-0">
+                        <div class="avatar bg-light-warning p-50 m-0">
+                            <div class="avatar-content">
+                                <i data-feather="package" class="font-medium-5"></i>
+                            </div>
+                        </div>
+                        <h2 class="font-weight-bolder mt-1">10</h2>
+                        <p class="card-text">En attente de validation</p>
+                    </div>
+                    <div id="order-chart"></div>
+                </div>
+            </div>
+            <!-- Orders Chart Card ends -->
         </div>
-    </div>
+
+        <div class="row match-height">
+            <div class="col-lg-4 col-sm-6 col-12">
+                <div class="card">
+                    <div class="card-header flex-column align-items-start pb-0">
+                        <div class="avatar bg-light-warning p-50 m-0">
+                            <div class="avatar-content">
+                                <i data-feather="package" class="font-medium-5"></i>
+                            </div>
+                        </div>
+                        <h2 class="font-weight-bolder mt-1">10</h2>
+                        <p class="card-text">En attente de validation</p>
+                    </div>
+                    <div id="order-chart"></div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-sm-6 col-12">
+                <div class="card">
+                    <div class="card-header flex-column align-items-start pb-0">
+                        <div class="avatar bg-light-warning p-50 m-0">
+                            <div class="avatar-content">
+                                <i data-feather="package" class="font-medium-5"></i>
+                            </div>
+                        </div>
+                        <h2 class="font-weight-bolder mt-1">10</h2>
+                        <p class="card-text">En attente de validation</p>
+                    </div>
+                    <div id="order-chart"></div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-sm-6 col-12">
+                <div class="card">
+                    <div class="card-header flex-column align-items-start pb-0">
+                        <div class="avatar bg-light-warning p-50 m-0">
+                            <div class="avatar-content">
+                                <i data-feather="package" class="font-medium-5"></i>
+                            </div>
+                        </div>
+                        <h2 class="font-weight-bolder mt-1">10</h2>
+                        <p class="card-text">En attente de validation</p>
+                    </div>
+                    <div id="order-chart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- List DataTable -->
+        <!-- <div class="row">
+            <div class="col-12">
+                <div class="card invoice-list-wrapper">
+                    <div class="card-datatable table-responsive">
+                        <table class="invoice-list-table table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>#</th>
+                                    <th><i data-feather="trending-up"></i></th>
+                                    <th>Client</th>
+                                    <th>Total</th>
+                                    <th class="text-truncate">Issued Date</th>
+                                    <th>Balance</th>
+                                    <th>Invoice Status</th>
+                                    <th class="cell-fit">Actions</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+        <!--/ List DataTable -->
+    </section>
+    <!-- Kick start -->
     <!--/ Page layout -->
 </x-main>

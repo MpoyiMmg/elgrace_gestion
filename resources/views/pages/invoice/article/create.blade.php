@@ -298,8 +298,9 @@
             <div class="col-xl-3 col-md-4 col-12">
                 <div class="card">
                     <div class="card-body">
+
                         <!-- <button class="btn btn-primary btn-block mb-75" disabled>Send Invoice</button> -->
-                        <!-- <a href="./app-invoice-preview.html" class="btn btn-outline-primary btn-block mb-75">Preview</a> -->
+                        <a href="{{ route('articles.invoices.index') }}" class="btn btn-outline-warning btn-block mb-75">Retour à liste des factures</a>
                         <button class="btn btn-outline-primary btn-block" type="button" id="_loading_btn" disabled>
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <span class="sr-only">Loading...</span>
@@ -332,6 +333,7 @@
         loadingBtn.style.display = 'none';
         otherDetails.style.display = 'none';
         otherSaveBtn.style.display = 'none';
+        saveBtn.style.display = 'none';
         
         otherModuleForm.style.display = 'none';
         window.onload = function() {
