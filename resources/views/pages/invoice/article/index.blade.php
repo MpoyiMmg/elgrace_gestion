@@ -5,6 +5,11 @@
                 <div id="alert" style="display: none;">
                     <p id="_alert_msg"></p>
                 </div>
+               
+                <div id="errorAlert" class="alert alert-danger" style="display: none;">
+                    <span id="_error_alert_msg"></span>
+                </div>
+
                 @if (count($preInvoices)) 
                 <div class="text-left mb-2">
                   
