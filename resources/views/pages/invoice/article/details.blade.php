@@ -459,34 +459,59 @@
         }
 
         function sendForValidation() {
-            validationBtn.style.display = 'none';
-            loadingBtn.style.display = 'block';
-            var alertMsg = document.querySelector("#_alert_msg");
-            var errorAlertMsg = document.querySelector("#_error_alert_msg");
+    validationBtn.style.display = 'none';
+    loadingBtn.style.display = 'block';
+    var alertMsg = document.querySelector("#_alert_msg");
+    var errorAlertMsg = document.querySelector("#_error_alert_msg");
 
-            $.ajax({
-                url: `{{ route('articles.invoices.sendForValidation', ':id') }}`.replace(':id', invoiceId),
-                type: 'POST',
-                data: {
-                    _token: "{{ csrf_token() }}"
-                },
-                success: function(response) {
-                    if (response) {
-                        alert.style.display = 'block';
-                        alertMsg.innerHTML = "Facture envoyée pour validation avec succès!";
+    // Collecter les IDs des factures sélectionnées
+    var selectedInvoices = [];
+    document.querySelectorAll('.invoice-list-checkbox:checked').forEach(function (checkbox) {
+        selectedInvoices.push(checkbox.value); // Ajouter l'ID de chaque facture sélectionnée
+    });
 
-                        setTimeout(function() {
-                            alert.style.display = 'none';
-                            validationBtn.style.display = 'block';
-                            loadingBtn.style.display = 'none';
-                        }, 5000);
+    // Si aucune facture n'est sélectionnée, prendre l'ID de la facture courante
+    if (selectedInvoices.length === 0) {
+        selectedInvoices.push(invoiceId); // ID unique de la facture en cours
+    }
 
-                        validationBtn.style.display = 'none';
-                        window.location.reload();
-                    }
-                }
-            })
+    // Effectuer la requête AJAX avec un seul ID ou un tableau d'IDs
+    $.ajax({
+        url: `{{ route('articles.invoices.sendForValidation', ':id') }}`.replace(':id', selectedInvoices.join(',')), // Passer l'ID ou les IDs en tant que liste
+        type: 'POST',
+        data: {
+            _token: "{{ csrf_token() }}",
+            invoices: selectedInvoices // Passer l'ID ou les IDs des factures sélectionnées
+        },
+        success: function(response) {
+            if (response.success) {
+                alert.style.display = 'block';
+                alertMsg.innerHTML = "Les factures ont été envoyées pour validation avec succès!";
+
+                setTimeout(function() {
+                    alert.style.display = 'none';
+                    validationBtn.style.display = 'block';
+                    loadingBtn.style.display = 'none';
+                }, 5000);
+
+                validationBtn.style.display = 'none';
+                window.location.reload();
+            } else {
+                alert.style.display = 'block';
+                errorAlertMsg.innerHTML = response.message || "Une erreur s'est produite.";
+                loadingBtn.style.display = 'none';
+                validationBtn.style.display = 'block';
+            }
+        },
+        error: function() {
+            alert.style.display = 'block';
+            errorAlertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
+            loadingBtn.style.display = 'none';
+            validationBtn.style.display = 'block';
         }
+    });
+}
+
 
         function rejectInvoice() {
             $('#comment_modal').modal('show');

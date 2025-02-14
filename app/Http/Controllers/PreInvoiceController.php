@@ -519,15 +519,25 @@ class PreInvoiceController extends Controller
 
         return response()->json(['message' => "Invoice rejected successfully"]);
     }
-
     public function sendForValidation(Request $request) {
-        $preInvoice = PreInvoice::find($request->invoice);
-        $preInvoice->update([
-            'status' => 'pending'
-        ]);
-
-        return response()->json(['message' => "Invoice sent for validation successfully"]);
+        $invoiceIds = $request->input('invoices');
+        if (!is_array($invoiceIds)) {
+            $invoiceIds = [$invoiceIds]; 
+        }
+    
+        if (empty($invoiceIds)) {
+            return response()->json(['success' => false, 'message' => 'Aucune facture sélectionnée.']);
+        }
+        $updatedInvoices = PreInvoice::whereIn('id', $invoiceIds)->update(['status' => 'pending']);
+        
+        if ($updatedInvoices) {
+            return response()->json(['success' => true, 'message' => 'Les factures ont été envoyées pour validation avec succès.']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Aucune facture trouvée pour la mise à jour.']);
+        }
     }
+    
+    
 
     public function articleProformatToInvoice(Request $request) {
         $preInvoice = PreInvoice::find($request->invoice);
