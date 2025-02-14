@@ -264,6 +264,7 @@
                         <a class="btn btn-outline-secondary btn-block mb-75" href="./app-invoice-print.html" target="_blank">
                             Print
                         </a> -->
+                        <a href="{{ route('articles.invoices.index') }}" class="btn btn-outline-warning btn-block mb-75">Retour à liste des factures</a>
                         @role('cashier')
                         @if ($preInvoice->status === 'draft')
                         <button class="btn btn-outline-primary btn-block" type="button" id="_loading_btn" disabled>

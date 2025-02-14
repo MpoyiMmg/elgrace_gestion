@@ -306,6 +306,7 @@
                     <div class="card-body">
                         <!-- <button class="btn btn-primary btn-block mb-75" disabled>Send Invoice</button> -->
                         <!-- <a href="./app-invoice-preview.html" class="btn btn-outline-primary btn-block mb-75">Preview</a> -->
+                        <a href="{{ route('articles.invoices.index') }}" class="btn btn-outline-warning btn-block mb-75">Retour à liste des factures</a>
                         <button type="button" class="btn btn-primary btn-block" id="_save_btn" onclick="UpdateInvoice()">Modifier</button>
                     </div>
                 </div>

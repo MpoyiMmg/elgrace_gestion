@@ -42,7 +42,12 @@ class Main extends Component
                 'title' => 'Proformats',
                 'icon' => 'file-text',
                 'group' => 'operations',
-                'is_active' => $route === 'articles.invoices.index' || $route === 'services.invoices.index',
+                'is_active' => $route === 'articles.invoices.index' || 
+                                $route === 'services.invoices.index' ||
+                                $route === 'articles.invoices.show' ||
+                                $route === 'articles.invoices.create' || 
+                                $route === 'articles.invoices.edit' ||
+                                $route === 'articles.invoices.print',
                 'url' => 'articles.invoices.index',
 
                 // 'submenu' => [
@@ -72,7 +77,8 @@ class Main extends Component
                 'url' => 'final-invoices.index',
                 'icon' => 'file-text',
                 'is_active' => $route === 'final-invoices.index' ||
-                                $route === 'final-invoices.details',
+                                $route === 'final-invoices.details' ||
+                                $route === 'final-invoices.historic-payments',
                 'group' => 'operations',
             ],
             (object) [

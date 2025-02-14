@@ -354,6 +354,9 @@
                         </table>
                     </div>
                 </div>
+                <div class="text-right">
+                    <a href="{{ route('final-invoices.historic-payments', $invoice->id) }}" class="btn btn-link">Voir l'historique des paiements</a>
+                </div>
                 @else
                 <div class="text-center">
                     <div class="badge badge-warning">FACTURE NON PAYEE</div>
