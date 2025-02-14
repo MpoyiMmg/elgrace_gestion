@@ -132,7 +132,6 @@
                                                     <p class="card-text col-title mb-md-50 mb-0">Service</p>
                                                     <select class="form-control item-details" id="_service">
                                                         <option value="" selected disabled>Selectionner un service</option>
-                                                        <option value="">Aucun service</option>
                                                         @foreach($services as $service)
                                                         <option value="{{ $service->id }}">{{ $service->name }}</option>
                                                         @endforeach

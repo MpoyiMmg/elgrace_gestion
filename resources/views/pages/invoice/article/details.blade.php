@@ -264,7 +264,6 @@
                         <a class="btn btn-outline-secondary btn-block mb-75" href="./app-invoice-print.html" target="_blank">
                             Print
                         </a> -->
-                        <a href="{{ route('articles.invoices.index') }}" class="btn btn-outline-warning btn-block mb-75">Retour à liste des factures</a>
                         @role('cashier')
                         @if ($preInvoice->status === 'draft')
                         <button class="btn btn-outline-primary btn-block" type="button" id="_loading_btn" disabled>
@@ -294,7 +293,7 @@
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <span class="sr-only">Loading...</span>
                         </button>
-                        <button class="btn btn-outline-primary btn-block mb-75 waves-effect" onclick="valdateInvoice()" id="_validate_btn">
+                        <button class="btn btn-outline-primary btn-block mb-75 waves-effect" onclick="validateInvoice(invoiceId)" id="_validate_btn">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check mr-25">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
@@ -418,38 +417,41 @@
             loadingBtn.style.display = 'none';
         }
 
-        function valdateInvoice() {
+            function validateInvoice(invoiceId) {
+            if (!invoiceId) {
+                alert("Aucune facture sélectionnée.");
+                return;
+            }
+
             loadingBtn.style.display = 'block';
             validatedBtn.style.display = 'none';
+
             var alertMsg = document.querySelector("#_alert_msg");
             var errorAlertMsg = document.querySelector("#_error_alert_msg");
 
             $.ajax({
-                url: `{{ route('articles.invoices.validate', ':id') }}`.replace(':id', invoiceId),
+                url: `{{ route('articles.invoices.validate') }}`, 
                 type: 'POST',
                 data: {
-                    _token: "{{ csrf_token() }}"
+                    _token: "{{ csrf_token() }}",
+                    invoices: [invoiceId] 
                 },
                 success: function(response) {
                     console.log("Validation success : ", response.status);
-                    if (response) {
-                        alert.style.display = 'block';
-                        alertMsg.innerHTML = "Facture validée avec succès";
+                    alert.style.display = 'block';
+                    alertMsg.innerHTML = "Facture validée avec succès";
 
-                        setTimeout(function() {
-                            alert.style.display = 'none';
-                            validatedBtn.style.display = 'block';
-                            loadingBtn.style.display = 'none';
-                        }, 5000);
+                    setTimeout(function() {
+                        alert.style.display = 'none';
+                        validatedBtn.style.display = 'block';
+                        loadingBtn.style.display = 'none';
+                    }, 5000);
 
-                        // validatedBtn.style.display = 'none';
-                        // rejectBtn.style.display = 'none';
-                        window.location.reload();
-                    }
+                    window.location.reload();
                 },
                 error: function(error) {
                     errorAlert.style.display = 'block';
-                    errorAlertMsg.innerHTML = "Erreur lors de la validation de la facture";
+                    errorAlertMsg.innerHTML = error.responseJSON.message || "Erreur lors de la validation de la facture";
 
                     setTimeout(function() {
                         errorAlert.style.display = 'none';
@@ -459,58 +461,35 @@
             });
         }
 
-function sendForValidation() {
-    
-    validationBtn.style.display = 'none';
-    loadingBtn.style.display = 'block';
-    var alertMsg = document.querySelector("#_alert_msg");
-    var errorAlertMsg = document.querySelector("#_error_alert_msg");
+        function sendForValidation() {
+            validationBtn.style.display = 'none';
+            loadingBtn.style.display = 'block';
+            var alertMsg = document.querySelector("#_alert_msg");
+            var errorAlertMsg = document.querySelector("#_error_alert_msg");
 
-    var selectedInvoices = [];
-    document.querySelectorAll('.invoice-list-checkbox:checked').forEach(function (checkbox) {
-        selectedInvoices.push(checkbox.value); 
-    });
+            $.ajax({
+                url: `{{ route('articles.invoices.sendForValidation', ':id') }}`.replace(':id', invoiceId),
+                type: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    if (response) {
+                        alert.style.display = 'block';
+                        alertMsg.innerHTML = "Facture envoyée pour validation avec succès!";
 
-    if (selectedInvoices.length === 0) {
-        selectedInvoices.push(invoiceId); 
-    }
+                        setTimeout(function() {
+                            alert.style.display = 'none';
+                            validationBtn.style.display = 'block';
+                            loadingBtn.style.display = 'none';
+                        }, 5000);
 
-    $.ajax({
-        url: `{{ route('articles.invoices.sendForValidation', ':id') }}`.replace(':id', selectedInvoices.join(',')), // Passer l'ID ou les IDs en tant que liste
-        type: 'POST',
-        data: {
-            _token: "{{ csrf_token() }}",
-            invoices: selectedInvoices 
-        },
-        success: function(response) {
-            if (response.success) {
-                alert.style.display = 'block';
-                alertMsg.innerHTML = "Les factures ont été envoyées pour validation avec succès!";
-
-                setTimeout(function() {
-                    alert.style.display = 'none';
-                    validationBtn.style.display = 'block';
-                    loadingBtn.style.display = 'none';
-                }, 5000);
-
-                validationBtn.style.display = 'none';
-                window.location.reload();
-            } else {
-                alert.style.display = 'block';
-                errorAlertMsg.innerHTML = response.message || "Une erreur s'est produite.";
-                loadingBtn.style.display = 'none';
-                validationBtn.style.display = 'block';
-            }
-        },
-        error: function() {
-            alert.style.display = 'block';
-            errorAlertMsg.innerHTML = "Une erreur s'est produite. Veuillez réessayer.";
-            loadingBtn.style.display = 'none';
-            validationBtn.style.display = 'block';
+                        validationBtn.style.display = 'none';
+                        window.location.reload();
+                    }
+                }
+            })
         }
-    });
-}
-
 
         function rejectInvoice() {
             $('#comment_modal').modal('show');

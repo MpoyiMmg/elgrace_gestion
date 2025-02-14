@@ -97,9 +97,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/modules-invoices/remove-item', 'removeModuleItem')->name('modules.invoices.remove.item');
         Route::post('/modules-invoices/store', 'storeModuleInvoice')->name('modules.invoices.store');
 
-        Route::post('articles-invoices/{invoice}/validate', 'validateArticleInvoice')->name('articles.invoices.validate');
+        Route::post('articles-invoices/validate', 'validateArticleInvoice')->name('articles.invoices.validate');
         Route::post('articles-invoices/{invoice}/reject', 'rejectArticleInvoice')->name('articles.invoices.reject');
-        Route::post('/articles-invoices/{invoice}/send-for-validation', 'sendForValidation')->name('articles.invoices.sendForValidation');
+        Route::post('/articles-invoices/send-for-validation', 'sendForValidation')->name('articles.invoices.sendForValidation');
         Route::post('/articles-invoices/{invoice}/to-invoice', 'articleProformatToInvoice')->name('articles.invoices.toInvoice');
     });
 
