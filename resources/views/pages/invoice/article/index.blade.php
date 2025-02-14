@@ -65,7 +65,7 @@
                                 <td>${{ number_format($invoice->total_amount, 2, '.', ',') }}</td>
                                 <td class="text-truncate">{{ date('d-m-Y', strtotime($invoice->issue_date)) }}</td>
                                 <td>
-                                    @role('admin')
+                                    @role('manager')
                                     @if ($invoice->status === 'draft')
                                         <div class="badge badge-info">En cours de création</div>
                                     @elseif ($invoice->status === 'pending')

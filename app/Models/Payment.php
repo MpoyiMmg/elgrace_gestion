@@ -15,5 +15,6 @@ class Payment extends Model
         'invoice_id',
         'payment_method',
         'remaining_amount',
+        'surplus_amount'
     ];
 }

@@ -47,13 +47,22 @@ class InvoiceController extends Controller
 
             $alreadyPaidAmount = $invoice->preInvoice->total_ttc - $invoice->paid_amount;
             $remainingAmount = 0;
+            $surplusAmount = 0;
             if ($paymentAmount < $invoice->preInvoice->total_ttc) {
                 $status = 'partialy_paid';
-                //  dd("here");
                 if (!$invoice->remaining_amount == 0) {
-                    $remainingAmount = $invoice->remaining_amount - $paymentAmount;
+                    if ($paymentAmount > $invoice->remaining_amount) {
+                        $surplusAmount = $paymentAmount - $invoice->remaining_amount;
+                        $remainingAmount = 0;
+                    } else {
+                        $surplusAmount = 0;
+                        $remainingAmount = $invoice->remaining_amount - $paymentAmount;
+                    }
+                    
+                    // $remainingAmount = $invoice->remaining_amount - $paymentAmount;
                     $invoice->update([
                         'remaining_amount' => $remainingAmount,
+                        'surplus_amount' => $surplusAmount,
                     ]);
                 } else {
                     $remainingAmount = $invoice->preInvoice->total_ttc - $paymentAmount;
@@ -70,7 +79,8 @@ class InvoiceController extends Controller
                 'payment_amount' => $paymentAmount,
                 'payment_date' => $paymentDate,
                 'payment_method' => $paymentMethod,
-                'remaining_amount' => $remainingAmount
+                'remaining_amount' => $remainingAmount,
+                'surplus_amount' => $surplusAmount
             ]);
 
             if ($invoice->remaining_amount == 0 ) {
