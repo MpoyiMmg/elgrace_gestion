@@ -179,7 +179,7 @@
         checkboxes.forEach(checkbox => {
             var row = checkbox.closest('tr');
             var status = row.querySelector('.badge').innerText.trim();
-            if (status !== 'Proformat convertie en facture' && status !== 'Facture prête à être envoyée' && status !== 'En attente de validation') {
+            if (status !== 'Proformat convertie en facture' && status !== 'Facture prête à être envoyée' && status !== 'En attente de validation'  && status !== 'Proformat convertie en facture') {
                 checkbox.checked = selectAllCheckbox.checked;
             } else {
                 checkbox.checked = false;  
